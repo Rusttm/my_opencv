@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 import asyncio
 import pandas as pd
+from copy import copy
+
 
 class DBConnGetFromTableAsync(DBConnMainClass):
     """ connector for work with tables"""
@@ -20,16 +22,15 @@ class DBConnGetFromTableAsync(DBConnMainClass):
     def __init__(self):
         super().__init__()
 
-
-    def create_sync_engine(self):
-        try:
-            from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
-            self._engine = DBConnAlchemy().create_alchemy_con_sync()
-            return True
-        except Exception as e:
-            print(e)
-            self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
-            return False
+    # def create_sync_engine(self):
+    #     try:
+    #         from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
+    #         self._engine = DBConnAlchemy().create_alchemy_con_sync()
+    #         return True
+    #     except Exception as e:
+    #         print(e)
+    #         self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
+    #         return False
 
     async def create_async_engine(self):
         try:
@@ -40,16 +41,6 @@ class DBConnGetFromTableAsync(DBConnMainClass):
             print(e)
             self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
             return False
-
-    # async def create_async_session(self) -> object:
-    #     try:
-    #         await self.create_async_engine()
-    #         self._async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
-    #         return self._async_session
-    #     except Exception as e:
-    #         print(e)
-    #         self.logger.warning(f"{__class__.__name__} cant create new async engine session error: {e}")
-    #         return None
 
     async def get_all_tables_list_async(self) -> list:
         """ Inspection on an AsyncEngine is currently not supported.
@@ -69,25 +60,20 @@ class DBConnGetFromTableAsync(DBConnMainClass):
         tables_list = await self.get_all_tables_list_async()
         return table_name in tables_list
 
-    def get_model_class(self, model_name):
+    async def get_all_data_from_table_async(self, model_name: str = None) -> list:
         module_import = importlib.import_module(f"{self.model_module}.{model_name}")
-        return getattr(module_import, model_name)
-
-    async def get_all_data_from_table_async(self, model_name: str = None):
-        model_main_class = self.get_model_class(model_name)
+        model_main_class = getattr(module_import, model_name)
         await self.create_async_engine()
-        res = None
+        res_list = list()
         async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
         try:
             async with async_session() as session:
                 res = (await session.execute(select(model_main_class))).scalars().all()
-            # list_of_dicts = [dict((key, value) for key, value in row.items()) for row in res]
-            # print(f"{list_of_dicts}")
-            for x in res:
-                print(x.__dict__)
-                # print(vars(x))
-                # print(x._asdict())
-            return res
+            for row in res:
+                obj_dict = copy(row.__dict__)
+                del obj_dict["_sa_instance_state"]
+                res_list.append(obj_dict)
+            return res_list
         except Exception as e:
             err_msg = f"{__class__.__name__} cant read table data, error: {e}"
             print(err_msg)
@@ -95,7 +81,6 @@ class DBConnGetFromTableAsync(DBConnMainClass):
             return None
         finally:
             await self._engine_async.dispose()
-
 
 
 if __name__ == '__main__':
