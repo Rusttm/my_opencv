@@ -8,38 +8,32 @@ from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import DeclarativeBase
 
 from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
-
 engine = DBConnAlchemy().create_alchemy_con_sync()
 
-
 class Base(DeclarativeBase):
-    pass
-
+	pass
 
 class DBModDetect(Base):
-    __tablename__ = 'detect_model'
-    position_id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False,
-                         comment='Обязательное поле для всех таблиц, автоповышение')
-    created = Column(DateTime, comment='Дата создания')
-    category_name = Column(String(1024), comment='Название категории')
-    confident = Column(Double, comment='Степень уверенности %%')
-    box_x1 = Column(Double, comment='Координата X1')
-    box_y1 = Column(Double, comment='Координата Y1')
-    box_x2 = Column(Double, comment='Координата X2')
-    box_y2 = Column(Double, comment='Координата Y2')
-    box_width = Column(Double, comment='Ширина кадра')
-    box_height = Column(Double, comment='Высота кадра')
-    description = Column(String(4096), comment='Описание')
-
+	__tablename__ = 'detect_model'
+	# __table_args__ = (UniqueConstraint('id', name='unique_key_id'),)
+	position_id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False, comment='Обязательное поле для всех таблиц, автоповышение')
+	created = Column(DateTime, comment='Дата создания')
+	category_name = Column(String(1024), comment='Название категории')
+	confident = Column(Double, comment='Степень уверенности %%')
+	box_x1 = Column(Double, comment='Координата X1 прямоугольника')
+	box_y1 = Column(Double, comment='Координата Y1 прямоугольника')
+	box_x2 = Column(Double, comment='Координата X2 прямоугольника')
+	box_y2 = Column(Double, comment='Координата Y2 прямоугольника')
+	box_width = Column(Double, comment='Ширина кадра')
+	box_height = Column(Double, comment='Высота кадра')
+	description = Column(String(4096), comment='Описание категории')
 
 def create_new_table():
-    Base.metadata.create_all(engine)
-
+	Base.metadata.create_all(engine)
 
 def delete_table():
-    Base.metadata.drop_all(engine)
-
+	Base.metadata.drop_all(engine)
 
 if __name__ == '__main__':
-    create_new_table()
-    # delete_table()
+	create_new_table()
+	# delete_table()

@@ -6,9 +6,11 @@ import sqlite3
 
 
 class DBModGenMainClass(DBMainClass):
+    """ generates models from jsonfile"""
     logger_name = f"{os.path.basename(__file__)}"
     config_dir = "config"
     models_dir = "models"
+    models_py_dir = "DBMod"
 
     def __init__(self):
         # print("test class")
@@ -57,8 +59,9 @@ class DBModGenMainClass(DBMainClass):
                  f"if __name__ == '__main__':\n" \
                  f"\tcreate_new_table()\n" \
                  f"\t# delete_table()\n"
-
-        with open(f"{model_dict.get('model_class', 'name')}.py", "w") as file1:
+        up_up_dir = os.path.dirname(os.path.dirname(__file__))
+        models_py_full_dir = os.path.join(up_up_dir, self.models_py_dir, f"{model_dict.get('model_class', 'name')}.py")
+        with open(models_py_full_dir, "w") as file1:
             # Writing data to a file
             file1.write(header + body + footer)
         return True
