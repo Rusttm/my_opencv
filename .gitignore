@@ -2,6 +2,7 @@
 *.mp4
 *.flv
 *.avi
+*.db
 data/
 config/
 logs/

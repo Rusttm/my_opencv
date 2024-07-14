@@ -2,6 +2,7 @@ from DBModule.DBMainLogger import DBMainLogger
 import os
 class DBMainClass(DBMainLogger):
     logger_name = f"{os.path.basename(__file__)}"
+    main_db = "sqlite"
     def __init__(self):
         # print("test class")
         super().__init__()
