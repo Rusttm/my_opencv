@@ -26,6 +26,7 @@ class DBModDetect(Base):
 	box_y2 = Column(Double, comment='Координата Y2 прямоугольника')
 	box_width = Column(Double, comment='Ширина кадра')
 	box_height = Column(Double, comment='Высота кадра')
+	path = Column(String(4096), comment='Название файла')
 	description = Column(String(4096), comment='Описание категории')
 
 def create_new_table():

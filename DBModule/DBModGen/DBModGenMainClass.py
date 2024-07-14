@@ -61,9 +61,10 @@ class DBModGenMainClass(DBMainClass):
                  f"\t# delete_table()\n"
         up_up_dir = os.path.dirname(os.path.dirname(__file__))
         models_py_full_dir = os.path.join(up_up_dir, self.models_py_dir, f"{model_dict.get('model_class', 'name')}.py")
-        with open(models_py_full_dir, "w") as file1:
+        async with aiofiles.open(models_py_full_dir, mode="w") as file1:
             # Writing data to a file
-            file1.write(header + body + footer)
+            await file1.write(header + body + footer)
+            await file1.flush()
         return True
 
 
