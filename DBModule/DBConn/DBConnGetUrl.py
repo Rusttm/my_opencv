@@ -13,10 +13,10 @@ class DBConnGetUrl(DBConnGetConfig):
     def __init__(self):
         super().__init__()
 
-    async def get_alchemy_url(self) -> str:
+    def get_alchemy_url(self) -> str:
         """ return full url for sqlalchemy request"""
         _url = ""
-        __db_config = await self.get_config()
+        __db_config = self.get_config()
         _db_lib = __db_config.get(self.library_key)
         if _db_lib == self.sqlite_key:
             _dir_name = __db_config.get("db_dir")
@@ -29,7 +29,7 @@ class DBConnGetUrl(DBConnGetConfig):
     async def get_alchemy_async_url(self) -> str:
         """ return full url for sqlalchemy request"""
         _async_url = ""
-        __db_config = await self.get_config()
+        __db_config = await self.get_config_async()
         _db_lib = __db_config.get(self.library_key)
         if _db_lib == self.sqlite_key:
             _async_lib = __db_config.get("library_async")
@@ -42,4 +42,5 @@ class DBConnGetUrl(DBConnGetConfig):
 
 if __name__ == '__main__':
     connector = DBConnGetUrl()
-    print(asyncio.run(connector.get_alchemy_url()))
+    print(asyncio.run(connector.get_alchemy_async_url()))
+    print(connector.get_alchemy_url())

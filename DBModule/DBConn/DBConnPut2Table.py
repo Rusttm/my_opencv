@@ -103,7 +103,7 @@ if __name__ == '__main__':
     today = datetime.datetime.now()
     data_dict = dict({"created": today,
                       "category_name": "person",
-                      "confident": 56.01,
+                      "confident": 55.01,
                       "box_x1": 10.02,
                       "box_y1": 15.03,
                       "box_x2": 20.04,

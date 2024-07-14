@@ -58,9 +58,31 @@ class DBConnConfigFile(DBConnMainClass):
             print(err_str)
             self.logger.debug(err_str)
             return None
-
+    def get_data_from_json(self, file_name=None, dir_name=None) -> dict:
+        """ takes data from json file """
+        if dir_name is not None:
+            self.dir_name = dir_name
+        if file_name:
+            file_name_type = file_name.split(".")[-1]
+            if file_name_type != "json":
+                file_name += ".json"
+        try:
+            up_up_dir = os.path.dirname(os.path.dirname(__file__))
+            json_file = os.path.join(up_up_dir, self.dir_name, file_name)
+            with open(json_file, mode='r') as jf:
+                data = json.load(jf)
+            return dict(data)
+        except FileNotFoundError as e:
+            self.logger.debug(f"File not found error json file: {e}")
+            return None
+        except json.decoder.JSONDecodeError as e:
+            err_str = f"{__class__.__name__} cant load data from json file {file_name}, error: {e}"
+            print(err_str)
+            self.logger.debug(err_str)
+            return None
 
 if __name__ == '__main__':
     connector = DBConnConfigFile()
-    print(asyncio.run(connector.get_json_files_list()))
-    print(asyncio.run(connector.get_data_from_json_async("../config/db_config.json")))
+    # print(asyncio.run(connector.get_json_files_list()))
+    # print(asyncio.run(connector.get_data_from_json_async("../config/db_config.json")))
+    print(connector.get_data_from_json("db_config.json"))

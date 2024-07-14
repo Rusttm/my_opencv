@@ -23,7 +23,7 @@ class DBConnAlchemy(DBConnGetUrl):
 
     def create_alchemy_con_sync(self):
         """ return full url for sqlalchemy request"""
-        _url = asyncio.run(self.get_alchemy_url())
+        _url = self.get_alchemy_url()
         engine = create_engine(_url)
         return engine
 
@@ -31,3 +31,4 @@ class DBConnAlchemy(DBConnGetUrl):
 if __name__ == '__main__':
     connector = DBConnAlchemy()
     print(asyncio.run(connector.create_alchemy_con_async()))
+    print(connector.create_alchemy_con_sync())
