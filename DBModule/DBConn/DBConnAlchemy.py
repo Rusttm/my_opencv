@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 
 
-class DBConnAl(DBConnGetUrl):
-    """ loads actual configuration data from config file"""
+class DBConnAlchemy(DBConnGetUrl):
+    """ creates engine async and sync connectors"""
     logger_name = f"{os.path.basename(__file__)}"
     library_key = "library"
     sqlite_key = "sqlite"
@@ -19,7 +19,7 @@ class DBConnAl(DBConnGetUrl):
         """ return full url for sqlalchemy request"""
         async_url = await self.get_alchemy_async_url()
         engine = create_async_engine(async_url)
-        return async_url
+        return engine
 
     def create_alchemy_con_sync(self):
         """ return full url for sqlalchemy request"""
@@ -29,5 +29,5 @@ class DBConnAl(DBConnGetUrl):
 
 
 if __name__ == '__main__':
-    connector = DBConnAl()
+    connector = DBConnAlchemy()
     print(asyncio.run(connector.create_alchemy_con_async()))
