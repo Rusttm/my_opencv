@@ -31,6 +31,7 @@ class DBModGenMainClass(DBMainClass):
                  f"from sqlalchemy.dialects.postgresql import JSONB, ARRAY, insert\n" \
                  f"from sqlalchemy.ext.mutable import MutableList\n" \
                  f"from sqlalchemy.orm import DeclarativeBase\n\n" \
+                 f"from datetime import datetime\n\n" \
                  f"from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy\n" \
                  f"engine = DBConnAlchemy().create_alchemy_con_sync()\n\n" \
                  f"class Base(DeclarativeBase):\n\tpass\n\n" \

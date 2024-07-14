@@ -4,6 +4,8 @@ import sqlite3
 
 
 class DBConnMainClass(DBMainClass):
+    """ mainclass for database connections
+    also creates new sqlite db """
     logger_name = f"{os.path.basename(__file__)}"
     db_sqlite_dir = "sqlite_db"
     db_sqlite_name = "sqlite_db.db"

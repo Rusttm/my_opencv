@@ -7,6 +7,8 @@ from sqlalchemy.dialects.postgresql import JSONB, ARRAY, insert
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import DeclarativeBase
 
+from datetime import datetime
+
 from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
 engine = DBConnAlchemy().create_alchemy_con_sync()
 
@@ -17,6 +19,7 @@ class DBModDetect(Base):
 	__tablename__ = 'detect_model'
 	# __table_args__ = (UniqueConstraint('id', name='unique_key_id'),)
 	position_id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False, comment='Обязательное поле для всех таблиц, автоповышение')
+	inserted_at = Column(DateTime, default=datetime.now(), comment='Дата внесения в базу')
 	created = Column(DateTime, comment='Дата создания')
 	category_name = Column(String(1024), comment='Название категории')
 	confident = Column(Double, comment='Степень уверенности %%')
@@ -24,8 +27,8 @@ class DBModDetect(Base):
 	box_y1 = Column(Double, comment='Координата Y1 прямоугольника')
 	box_x2 = Column(Double, comment='Координата X2 прямоугольника')
 	box_y2 = Column(Double, comment='Координата Y2 прямоугольника')
-	box_width = Column(Double, comment='Ширина кадра')
-	box_height = Column(Double, comment='Высота кадра')
+	frame_width = Column(Integer, comment='Ширина кадра')
+	frame_height = Column(Integer, comment='Высота кадра')
 	path = Column(String(4096), comment='Название файла')
 	description = Column(String(4096), comment='Описание категории')
 
