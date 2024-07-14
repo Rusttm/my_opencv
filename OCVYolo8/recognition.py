@@ -15,7 +15,7 @@ import cv2
 import math 
 import asyncio
 from datetime import datetime
-
+import os
 # Open the video file
 # cap = cv2.VideoCapture("video_store_cam_5min.mp4")
 # cap.set(3, 1920)
@@ -26,10 +26,14 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 1920)
 cap.set(4, 1024)
 
+_data_dir = "data"
+_capture_dir = "capture"
 
 w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
-capture_rec_number = 1
-out = cv2.VideoWriter(f"./data/capture/capture_{capture_rec_number}.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+capture_rec_number = 2
+cur_dir = os.path.dirname(__file__)
+record_file_name = os.path.join(cur_dir, _data_dir, _capture_dir, f"capture_{capture_rec_number}.avi")
+out = cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
     
 
 # model
@@ -46,6 +50,7 @@ while True:
         for box in boxes:
             # class name
             cls = int(box.cls[0])
+            cls_name = model_classes[cls]
 
             # find only persons
             # if cls > 0:
@@ -63,7 +68,7 @@ while True:
             # put box in cam
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 1)
             data_dict = dict({"created": datetime.now(),
-                              "category_name": cls,
+                              "category_name": cls_name,
                               "confident": confidence,
                               "box_x1": x1,
                               "box_y1": y1,
@@ -71,8 +76,8 @@ while True:
                               "box_y2": y2,
                               "frame_width": 1920,
                               "frame_height": 1024,
-                              "path": "/home/user77/Desktop/my_opencv/OCVYolo8/data/capture",
-                              "description": "first records"
+                              "path": str(record_file_name),
+                              "description": f"camera captured writed to {str(record_file_name)}"
                               })
             asyncio.run(db_writer(data_dict))
             
