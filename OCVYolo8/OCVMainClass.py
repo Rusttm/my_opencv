@@ -1,4 +1,4 @@
-from OCVMainLogger import OCVMainLogger
+from OCVYolo8.OCVMainLogger import OCVMainLogger
 import os
 class OCVMainClass(OCVMainLogger):
     logger_name = f"{os.path.basename(__file__)}"
