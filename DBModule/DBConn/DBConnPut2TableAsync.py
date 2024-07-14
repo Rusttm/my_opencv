@@ -30,11 +30,11 @@ class DBConnPut2TableAsync(DBConnMainClass):
             self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
             return False
 
-    async def put_data_dict_2table_async(self, model_data_dict: dict = None, model_name: str = None):
+    async def put_data_dict_2table_async(self, model_data_dict: dict = None, table_name: str = None):
         inserted_rows_num = 0
         try:
-            module_import = importlib.import_module(f"{self.model_module}.{model_name}")
-            model_main_class = getattr(module_import, model_name)
+            from DBModule.DBConn.DBConnGetModClass import DBConnGetModClass
+            model_main_class = await DBConnGetModClass().get_model_class_by_table_name(table_name=table_name)
             await self.create_async_engine()
             model_new_obj = model_main_class(**model_data_dict)
             async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
@@ -75,8 +75,8 @@ def test_table_insertion():
                       "path": "/temp",
                       "description": "test write"
                       })
-    model_class_name = "DBModDetect"
-    print(asyncio.run(connector.put_data_dict_2table_async(model_data_dict=data_dict, model_name=model_class_name)))
+    table_name = "detect_model"
+    print(asyncio.run(connector.put_data_dict_2table_async(model_data_dict=data_dict, table_name=table_name)))
 
 
 if __name__ == '__main__':

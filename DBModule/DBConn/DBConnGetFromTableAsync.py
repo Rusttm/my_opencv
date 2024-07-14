@@ -50,9 +50,9 @@ class DBConnGetFromTableAsync(DBConnMainClass):
         tables_list = await self.get_all_tables_list_async()
         return table_name in tables_list
 
-    async def get_all_data_from_table_async(self, model_name: str = None) -> list:
-        module_import = importlib.import_module(f"{self.model_module}.{model_name}")
-        model_main_class = getattr(module_import, model_name)
+    async def get_all_data_from_table_async(self, table_name: str = None) -> list:
+        from DBModule.DBConn.DBConnGetModClass import DBConnGetModClass
+        model_main_class = await DBConnGetModClass().get_model_class_by_table_name(table_name=table_name)
         await self.create_async_engine()
         res_list = list()
         async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
@@ -77,4 +77,4 @@ if __name__ == '__main__':
     connector = DBConnGetFromTableAsync()
     print("tables list:", asyncio.run(connector.get_all_tables_list_async()))
     print("'detect_model' in tables list:", asyncio.run(connector.check_table_exist_async("detect_model")))
-    print("all records:", asyncio.run(connector.get_all_data_from_table_async("DBModDetect")))
+    print("all records:", asyncio.run(connector.get_all_data_from_table_async("detect_model")))
