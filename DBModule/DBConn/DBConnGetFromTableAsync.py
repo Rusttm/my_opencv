@@ -22,16 +22,6 @@ class DBConnGetFromTableAsync(DBConnMainClass):
     def __init__(self):
         super().__init__()
 
-    # def create_sync_engine(self):
-    #     try:
-    #         from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
-    #         self._engine = DBConnAlchemy().create_alchemy_con_sync()
-    #         return True
-    #     except Exception as e:
-    #         print(e)
-    #         self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
-    #         return False
-
     async def create_async_engine(self):
         try:
             from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
