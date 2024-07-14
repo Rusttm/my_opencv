@@ -2,7 +2,8 @@
 # ! pip install ultralytics
 
 from ultralytics import YOLO
-
+from DBModule.DBCont.DBContPut2DetectTableAsync import DBContPut2DetectTableAsync
+db_writer = DBContPut2DetectTableAsync().put_data_dict_2_detect_table_async
 # testing classes
 model = YOLO("yolo-Weights/yolov8n.pt")
 models_dict = model.names
@@ -12,6 +13,8 @@ models_dict.get(28)
 # test recognition
 import cv2
 import math 
+import asyncio
+from datetime import datetime
 
 # Open the video file
 # cap = cv2.VideoCapture("video_store_cam_5min.mp4")
@@ -59,7 +62,19 @@ while True:
             #     continue
             # put box in cam
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 1)
-
+            data_dict = dict({"created": datetime.now(),
+                              "category_name": cls,
+                              "confident": confidence,
+                              "box_x1": x1,
+                              "box_y1": y1,
+                              "box_x2": x2,
+                              "box_y2": y2,
+                              "frame_width": 1920,
+                              "frame_height": 1024,
+                              "path": "/home/user77/Desktop/my_opencv/OCVYolo8/data/capture",
+                              "description": "first records"
+                              })
+            asyncio.run(db_writer(data_dict))
             
 
             # object details
