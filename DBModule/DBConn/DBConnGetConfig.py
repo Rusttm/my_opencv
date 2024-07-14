@@ -1,4 +1,5 @@
 from DBModule.DBConn.DBConnConfigFile import DBConnConfigFile
+import asyncio
 import json
 import os
 import configparser
@@ -14,10 +15,10 @@ class DBConnGetConfig(DBConnConfigFile):
     def __init__(self):
         super().__init__()
 
-    def get_config(self):
+    async def get_config(self) -> dict:
         """ return full dictionary for actual configuration"""
         try:
-            __full_conf = self.get_data_from_json(file_name=self.config_file_name)
+            __full_conf = await self.get_data_from_json(file_name=self.config_file_name)
             __db_current_name = __full_conf.get(self.db_key)
             if __db_current_name is None:
                 raise KeyError(f"requested keyword in json file should be {self.db_key}")
@@ -35,4 +36,5 @@ class DBConnGetConfig(DBConnConfigFile):
 
 if __name__ == '__main__':
     connector = DBConnGetConfig()
-    print(connector.get_config())
+    print(asyncio.run(connector.get_config()))
+
