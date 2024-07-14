@@ -36,7 +36,7 @@ class DBConnConfigFile(DBConnMainClass):
             result.append(file_name)
         return result
 
-    async def get_data_from_json(self, file_name=None, dir_name=None) -> dict:
+    async def get_data_from_json_async(self, file_name=None, dir_name=None) -> dict:
         """ takes data from json file """
         if dir_name is not None:
             self.dir_name = dir_name
@@ -63,4 +63,4 @@ class DBConnConfigFile(DBConnMainClass):
 if __name__ == '__main__':
     connector = DBConnConfigFile()
     print(asyncio.run(connector.get_json_files_list()))
-    print(asyncio.run(connector.get_data_from_json("../config/db_config.json")))
+    print(asyncio.run(connector.get_data_from_json_async("../config/db_config.json")))

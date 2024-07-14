@@ -13,6 +13,7 @@ class DBConnMainClass(DBMainClass):
         super().__init__()
 
     def create_sqlite_db(self, name: str = None):
+        """ creates new sqlite db"""
         if name is None:
             name = self.db_sqlite_name
         upper_dir = os.path.dirname(os.path.dirname(__file__))
