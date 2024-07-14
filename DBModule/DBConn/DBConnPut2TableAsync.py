@@ -20,17 +20,6 @@ class DBConnPut2TableAsync(DBConnMainClass):
     def __init__(self):
         super().__init__()
 
-
-    def create_sync_engine(self):
-        try:
-            from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
-            self._engine = DBConnAlchemy().create_alchemy_con_sync()
-            return True
-        except Exception as e:
-            print(e)
-            self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
-            return False
-
     async def create_async_engine(self):
         try:
             from DBModule.DBConn.DBConnAlchemy import DBConnAlchemy
@@ -41,34 +30,6 @@ class DBConnPut2TableAsync(DBConnMainClass):
             self.logger.warning(f"{__class__.__name__} cant create new engine error: {e}")
             return False
 
-    async def create_async_session(self) -> object:
-        try:
-            await self.create_async_engine()
-            self._async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
-            return self._async_session
-        except Exception as e:
-            print(e)
-            self.logger.warning(f"{__class__.__name__} cant create new async engine session error: {e}")
-            return None
-
-    async def get_all_tables_list_async(self) -> list:
-        """ Inspection on an AsyncEngine is currently not supported.
-        Please obtain a connection then use ``conn.run_sync``"""
-        await self.create_async_engine()
-
-        def get_all_tables_list(conn):
-            inspector = sqlalchemy.inspect(conn)
-            return inspector.get_table_names()
-
-        async with self._engine_async.begin() as async_conn:
-            table_names = await async_conn.run_sync(get_all_tables_list)
-
-        return table_names
-
-    async def check_table_exist_async(self, table_name: str = None):
-        tables_list = await self.get_all_tables_list_async()
-        return table_name in tables_list
-
     async def put_data_dict_2table_async(self, model_data_dict: dict = None, model_name: str = None):
         inserted_rows_num = 0
         try:
@@ -76,12 +37,20 @@ class DBConnPut2TableAsync(DBConnMainClass):
             model_main_class = getattr(module_import, model_name)
             await self.create_async_engine()
             model_new_obj = model_main_class(**model_data_dict)
-            Session = sessionmaker(bind=self._engine)
-            session = Session()
-            # check is presence position?
-            session.add(model_new_obj)
-            inserted_rows_num += 1
-            session.commit()
+            async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
+            try:
+                async with async_session() as session:
+                    async with session.begin():
+                        # session.add_all(model_new_obj)
+                        session.add(model_new_obj)
+                return True
+            except Exception as e:
+                err_msg = f"{__class__.__name__} cant write data 2 table, error: {e}"
+                print(err_msg)
+                self.logger.warning(err_msg)
+                return None
+            finally:
+                await self._engine_async.dispose()
 
         except Exception as e:
             err_str = f"{__class__.__name__} balance table insertion interrupt, error {e}"
@@ -93,10 +62,7 @@ class DBConnPut2TableAsync(DBConnMainClass):
 
 def test_table_insertion():
     connector = DBConnPut2TableAsync()
-    # print(connector.create_engine())
-    print("tables list:", asyncio.run(connector.get_all_tables_list_async()))
-    print("'detect_model' in tables list:", asyncio.run(connector.check_table_exist_async("detect_model")))
-    today = datetime.datetime.now()
+    today = datetime.datetime(year=2023, month=7, day=1, hour=17, minute=15)
     data_dict = dict({"created": today,
                       "category_name": "person",
                       "confident": 56.01,
@@ -110,16 +76,8 @@ def test_table_insertion():
                       "description": "test write"
                       })
     model_class_name = "DBModDetect"
-    connector.put_data_dict_2table_async(model_data_dict=data_dict, model_name=model_class_name)
-
-    # how to create class from classname
-    module = importlib.import_module("DBModule.DBMod.DBModDetect")
-    model_class = getattr(module, model_class_name)
-    new_model_obj = model_class(**data_dict)
-    print(new_model_obj.description)
+    print(asyncio.run(connector.put_data_dict_2table_async(model_data_dict=data_dict, model_name=model_class_name)))
 
 
 if __name__ == '__main__':
-    connector = DBConnPut2TableAsync()
-    print("tables list:", asyncio.run(connector.get_all_tables_list_async()))
-    print("'detect_model' in tables list:", asyncio.run(connector.check_table_exist_async("detect_model")))
+    test_table_insertion()
