@@ -25,7 +25,7 @@ class OSVDetect(OCVMainClass):
     _cap_config: dict = None
     _out = None
     _capture_delay: int = 3
-    _cv2 = cv2
+    _confidence = 50
 
     def __init__(self):
         super().__init__()
@@ -72,19 +72,13 @@ class OSVDetect(OCVMainClass):
             cls = int(box.cls[0])
             cls_name = self._models_dict.get(cls)
             detected_classes_names_dict[cls_name] = detected_classes_names_dict.get(cls_name, 0) + 1
-            # if cls != 0:
-            #     pass
-            #     # continue
-            # elif cls == 0:
-            #     print(f"person detected!!!")
-            # bounding box
             x1, y1, x2, y2 = box.xyxy[0]
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # convert to int values
             # confidence
             confidence = math.ceil((box.conf[0] * 100))
 
-            # find only surely confident (>50%)
-            if confidence < 50:
+            # find only surely confidence (>50%)
+            if confidence < self._confidence:
                 continue
 
             # put box in cam
@@ -113,18 +107,14 @@ class OSVDetect(OCVMainClass):
                 # run model recognition
                 results = self._model(img, imgsz=[w, h], rect=True, verbose=False)
                 for result in results:
-                    boxes = result.boxes
+                    detected_names_dict, img = self.img_boxes_handler(img, boxes=result.boxes)
+                    persons_num = detected_names_dict.get("person", 0)
 
                     # capture tail part
                     time_limit = person_captured_last_time + datetime.timedelta(seconds=person_captured_time_delay)
                     time_is_passed = datetime.datetime.now() > time_limit
-                    # check is person captured during last 3 sec?
 
-                    detected_names_dict, img = self.img_boxes_handler(img, boxes=boxes)
-                    persons_num = detected_names_dict.get("person", 0)
-
-
-                    #if detect person in frame
+                    # if detect person in frame
                     if persons_num > 0:
                         print(f"persons detected {persons_num}")
                         # if first detection
@@ -132,8 +122,8 @@ class OSVDetect(OCVMainClass):
                             print(f"person just captured at {datetime.datetime.now()}")
                             self.change_out_file()
                             print(f"video writed in file {self._file_name}")
-                            person_captured = True
-                            person_captured_last_time = datetime.datetime.now()
+                        person_captured = True
+                        person_captured_last_time = datetime.datetime.now()
                         self._out.write(img)
                     # if person already detected early but not now
                     else:
