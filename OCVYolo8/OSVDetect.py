@@ -25,6 +25,7 @@ class OSVDetect(OCVMainClass):
     _cap_config: dict = None
     _out = None
     _capture_delay: int = 10
+    _cv2 = cv2
 
     def __init__(self):
         super().__init__()
@@ -65,8 +66,10 @@ class OSVDetect(OCVMainClass):
         fps = self._cap_config.get("fps")
         w = self._cap_config.get("width")
         h = self._cap_config.get("height")
-        # cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h)).write(img)
-        self._out = cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+        self._out = self._cv2.VideoWriter(record_file_name, self._cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+
+    def img_blocks_handler(self, boxes):
+        pass
 
     def run_detect_from_cap(self):
         """ method capture the frame recognize and writes it in file"""
@@ -131,7 +134,7 @@ class OSVDetect(OCVMainClass):
                         fontScale = 0.5
                         color = (255, 0, 0)
                         thickness = 1
-                        cv2.putText(img, f"{cls_name} ({confidence}%)", org, font, fontScale, color, thickness)
+                        self._cv2.putText(img, f"{cls_name} ({confidence}%)", org, font, fontScale, color, thickness)
 
                         if not person_captured:
                             print(f"person just captured at {datetime.datetime.now()}")
@@ -142,7 +145,7 @@ class OSVDetect(OCVMainClass):
                         person_captured_last_time = datetime.datetime.now()
 
                         self._out.write(img)
-                cv2.imshow('Webcam', img)
+                self._cv2.imshow('Webcam', img)
                 if cv2.waitKey(1) == ord('q'):
                     break
 
