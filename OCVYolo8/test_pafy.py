@@ -1,15 +1,27 @@
+# from https://pypi.org/project/pafy/
 import yt_dlp as youtube_dl
 import pafy
 import cv2
 
-url = "https://www.youtube.com/watch?v=60h6lpnSgck"
+url = "https://www.youtube.com/watch?v=1fH8WXPcltQ"
 video = pafy.new(url)
-# best = video.getbest(preftype="mp4")
-best = video.getbest(preftype="webm")
+print("Streams : " + str(video.allstreams))
+best = video.getbest(preftype="mp4")
+# best = video.getbest(preftype="webm")
 
-capture = cv2.VideoCapture(best.url)
-while True:
-    grabbed, frame = capture.read()
-    cv2.imshow('Webcam', frame)
-    if cv2.waitKey(1) == ord('q'):
-        break
+print(f"{best.url=}")
+smallest = video.videostreams[1]
+print(f"{smallest.url=}")
+# capture = cv2.VideoCapture(best.url)
+capture = cv2.VideoCapture(smallest.url)
+if not capture.isOpened():
+    print("Cannot open stream")
+    exit()
+check, frame = capture.read()
+print(check, frame)
+
+cv2.imshow('frame', frame)
+cv2.waitKey(10)
+
+capture.release()
+cv2.destroyAllWindows()
