@@ -4,12 +4,13 @@ from OCVYolo8.OCVMainClass import OCVMainClass
 import os
 from ultralytics import YOLO
 from DBModule.DBCont.DBContPut2DetectTableAsync import DBContPut2DetectTableAsync
+db_writer = DBContPut2DetectTableAsync().put_data_dict_2_detect_table_async
 import cv2
 import math
 import asyncio
 import datetime
 import secrets
-
+import time
 
 class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
@@ -24,7 +25,7 @@ class OSVDetect(OCVMainClass):
     _cap: cv2.VideoCapture = None
     _cap_config: dict = None
     _out = None
-    _capture_delay: int = 3
+    _capture_delay: int = 5
     _confidence = 50
 
     def __init__(self):
@@ -54,7 +55,6 @@ class OSVDetect(OCVMainClass):
         # print(self._models_dict)
 
     def change_out_file(self):
-
         today_date = datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S")
         self._file_number += 1
         self._file_name = f"capture_{today_date}_{secrets.token_hex(nbytes=2)}.avi"
@@ -65,7 +65,7 @@ class OSVDetect(OCVMainClass):
         h = self._cap_config.get("height")
         self._out = cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
-    def img_boxes_handler(self, img, boxes) -> dict:
+    def img_boxes_handler(self, img, boxes) -> tuple:
         detected_classes_names_dict = dict({"person": 0})
         # print(f"{boxes=}")
         for box in boxes:
@@ -76,7 +76,6 @@ class OSVDetect(OCVMainClass):
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # convert to int values
             # confidence
             confidence = math.ceil((box.conf[0] * 100))
-
             # find only surely confidence (>50%)
             if confidence < self._confidence:
                 continue
@@ -90,6 +89,20 @@ class OSVDetect(OCVMainClass):
             color = (255, 0, 0)
             thickness = 2
             cv2.putText(img, f"{cls_name} ({confidence}%)", org, font, font_scale, color, thickness)
+            data_dict = dict({"created": datetime.datetime.now(),
+                              "category_name": cls_name,
+                              "confident": confidence,
+                              "box_x1": x1,
+                              "box_y1": y1,
+                              "box_x2": x2,
+                              "box_y2": y2,
+                              "frame_width": self._cap_config.get("width"),
+                              "frame_height": self._cap_config.get("height"),
+                              "path": self._file_name,
+                              "description": f"camera captured writed to {self._file_name}"
+                              })
+            asyncio.run(db_writer(data_dict))
+
         return detected_classes_names_dict, img
 
     def run_detect_from_cap(self):
@@ -97,6 +110,8 @@ class OSVDetect(OCVMainClass):
         person_captured = False
         person_captured_last_time = datetime.datetime.now()
         person_captured_time_delay = self._capture_delay
+        maximal_persons_count = 0
+        capture_person_start_time = None
         try:
             while True:
                 # read cap res
@@ -116,12 +131,15 @@ class OSVDetect(OCVMainClass):
 
                     # if detect person in frame
                     if persons_num > 0:
-                        print(f"persons detected {persons_num}")
+                        maximal_persons_count = max(persons_num, maximal_persons_count)
+                        # print(f"persons detected {persons_num}")
                         # if first detection
                         if person_captured is False:
                             print(f"person just captured at {datetime.datetime.now()}")
                             self.change_out_file()
                             print(f"video writed in file {self._file_name}")
+                            capture_person_start_time = time.time()
+
                         person_captured = True
                         person_captured_last_time = datetime.datetime.now()
                         self._out.write(img)
@@ -131,6 +149,10 @@ class OSVDetect(OCVMainClass):
                             if person_captured:
                                 person_captured = False
                                 person_captured_last_time = datetime.datetime.now()
+                                print(f"maximum persons detected {maximal_persons_count}")
+                                maximal_persons_count = 0
+                                capture_time = time.time() - capture_person_start_time
+                                print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
                         else:
                             if person_captured:
