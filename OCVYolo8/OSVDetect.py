@@ -5,6 +5,8 @@ import os
 from ultralytics import YOLO
 from DBModule.DBCont.DBContPut2DetectTableAsync import DBContPut2DetectTableAsync
 db_writer = DBContPut2DetectTableAsync().put_data_dict_2_detect_table_async
+from DBModule.DBCont.DBContPut2CaptureTableAsync import DBContPut2CaptureTableAsync
+db_writer2 = DBContPut2CaptureTableAsync().put_data_dict_2_capture_table_async
 import cv2
 import math
 import asyncio
@@ -27,6 +29,7 @@ class OSVDetect(OCVMainClass):
     _out = None
     _capture_delay: int = 5
     _confidence = 50
+    _capture_class = "person"
 
     def __init__(self):
         super().__init__()
@@ -112,6 +115,7 @@ class OSVDetect(OCVMainClass):
         person_captured_time_delay = self._capture_delay
         maximal_persons_count = 0
         capture_person_start_time = None
+        capture_start_datetime = None
         try:
             while True:
                 # read cap res
@@ -123,7 +127,7 @@ class OSVDetect(OCVMainClass):
                 results = self._model(img, imgsz=[w, h], rect=True, verbose=False)
                 for result in results:
                     detected_names_dict, img = self.img_boxes_handler(img, boxes=result.boxes)
-                    persons_num = detected_names_dict.get("person", 0)
+                    persons_num = detected_names_dict.get(self._capture_class, 0)
 
                     # capture tail part
                     time_limit = person_captured_last_time + datetime.timedelta(seconds=person_captured_time_delay)
@@ -139,6 +143,7 @@ class OSVDetect(OCVMainClass):
                             self.change_out_file()
                             print(f"video writed in file {self._file_name}")
                             capture_person_start_time = time.time()
+                            capture_start_datetime = datetime.datetime.now()
 
                         person_captured = True
                         person_captured_last_time = datetime.datetime.now()
@@ -150,10 +155,26 @@ class OSVDetect(OCVMainClass):
                                 person_captured = False
                                 person_captured_last_time = datetime.datetime.now()
                                 print(f"maximum persons detected {maximal_persons_count}")
-                                maximal_persons_count = 0
+
                                 capture_time = time.time() - capture_person_start_time
                                 print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
+
+                                # put data to database
+                                data_dict = dict({"created": capture_start_datetime,
+                                                  "closed": person_captured_last_time,
+                                                  "category_name": self._capture_class,
+                                                  "confident": 0,
+                                                  "time": capture_time,
+                                                  "frame_width": self._cap_config.get("width"),
+                                                  "frame_height": self._cap_config.get("height"),
+                                                  "count": maximal_persons_count,
+                                                  "path": self._file_name,
+                                                  "description": "test person detection"
+                                                  })
+                                asyncio.run(db_writer2(data_dict))
+                                maximal_persons_count = 0
+
                         else:
                             if person_captured:
                                 self._out.write(img)
