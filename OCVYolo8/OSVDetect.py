@@ -17,7 +17,7 @@ import time
 class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
     _weights_dir = "yolo-Weights"
-    _weights_file = "yolov8x.pt"
+    _weights_file = "yolov8n.pt"
     _data_dir = "data"
     _capture_dir = "capture"
     _model: YOLO = None
