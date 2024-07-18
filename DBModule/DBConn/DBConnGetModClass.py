@@ -7,8 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 import asyncio
-import pandas as pd
-from copy import copy
 
 
 class DBConnGetModClass(DBConnMainClass):
