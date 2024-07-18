@@ -27,7 +27,7 @@ class OSVDetect(OCVMainClass):
     _cap: cv2.VideoCapture = None
     _cap_config: dict = None
     _out = None
-    _capture_delay: int = 5
+    _capture_delay: int = 3
     _confidence = 50
     _capture_class = "person"
 
