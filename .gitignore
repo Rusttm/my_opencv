@@ -3,6 +3,7 @@
 *.flv
 *.avi
 *.db
+*.webm
 data/
 config/
 logs/
