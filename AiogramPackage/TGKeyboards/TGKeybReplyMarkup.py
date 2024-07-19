@@ -1,3 +1,5 @@
+# not usable
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
 my_reply_kb = ReplyKeyboardMarkup(

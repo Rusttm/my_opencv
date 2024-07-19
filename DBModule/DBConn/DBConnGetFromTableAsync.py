@@ -71,9 +71,51 @@ class DBConnGetFromTableAsync(DBConnMainClass):
         finally:
             await self._engine_async.dispose()
 
+    async def get_filtered_data_from_table_async(self, table_name: str = None,
+                                                 from_val=None,
+                                                 to_val=None,
+                                                 col_name: str = None) -> list:
+        if col_name is None:
+            return await self.get_all_data_from_table_async(table_name=table_name)
+
+        from DBModule.DBConn.DBConnGetModClass import DBConnGetModClass
+        model_main_class = await DBConnGetModClass().get_model_class_by_table_name(table_name=table_name)
+        # form request
+
+        await self.create_async_engine()
+        res_list = list()
+        async_session = sessionmaker(self._engine_async, expire_on_commit=False, class_=AsyncSession)
+        try:
+            async with async_session() as session:
+                filtered_request = select(model_main_class)
+                if from_val:
+                    filtered_request = filtered_request.filter(getattr(model_main_class, col_name) >= from_val)
+                if to_val:
+                    filtered_request = filtered_request.filter(getattr(model_main_class, col_name) <= to_val)
+
+                res = (await session.execute(filtered_request)).scalars().all()
+            for row in res:
+                obj_dict = copy(row.__dict__)
+                del obj_dict["_sa_instance_state"]
+                res_list.append(obj_dict)
+            return res_list
+        except Exception as e:
+            err_msg = f"{__class__.__name__} cant read table data, error: {e}"
+            print(err_msg)
+            self.logger.warning(err_msg)
+            return None
+        finally:
+            await self._engine_async.dispose()
+
 
 if __name__ == '__main__':
     connector = DBConnGetFromTableAsync()
     print("tables list:", asyncio.run(connector.get_all_tables_list_async()))
     print("'detect_model' in tables list:", asyncio.run(connector.check_table_exist_async("detect_model")))
-    print("all records:", asyncio.run(connector.get_all_data_from_table_async("detect_model")))
+    # print("all records:", asyncio.run(connector.get_all_data_from_table_async("detect_model")))
+    start_date = datetime.datetime(year=2024, month=7, day=18, hour=14, minute=27)
+    end_date = datetime.datetime(year=2024, month=7, day=19, hour=14, minute=27)
+    # filtered_data = asyncio.run(connector.get_filtered_data_from_table_async("detect_model", col_name="confident", from_val=59.0, to_val=59.0))
+    filtered_data = asyncio.run(connector.get_filtered_data_from_table_async("detect_model", col_name="inserted_at", from_val=start_date))
+    for val in filtered_data:
+        print(val)

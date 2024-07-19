@@ -16,7 +16,7 @@ def create_connection(db_file):
 
 
 if __name__ == '__main__':
-    file = "/AiogramPackage/data_sql/sqlite3.db"
+    file = "../data_sql/sqlite3.db"
     create_connection(file)
     # filename to form database
     conn = sqlite3.connect(file)
