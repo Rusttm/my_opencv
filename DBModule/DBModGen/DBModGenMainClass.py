@@ -1,3 +1,6 @@
+# this model generator from json files in /DBModule/config/models
+
+
 from DBModule.DBMainClass import DBMainClass
 import os
 import asyncio

@@ -28,8 +28,9 @@ class DBModCaptureTg(Base):
 	frame_width = Column(Integer, comment='Ширина кадра')
 	frame_height = Column(Integer, comment='Высота кадра')
 	count = Column(Double, comment='Количество объектов')
-	path = Column(String(4096), comment='Название файла')
+	video_file = Column(String(4096), comment='Название файла')
 	description = Column(String(4096), comment='Описание категории')
+	image_file = Column(String(4096), comment='Фото для обзора (название)')
 	react = Column(String(255), comment='Реакция')
 	react_time = Column(DateTime, comment='Дата создания реакции')
 

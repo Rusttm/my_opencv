@@ -20,10 +20,14 @@ class OSVDetect(OCVMainClass):
     _weights_file = "yolov8x.pt"
     _data_dir = "data"
     _capture_dir = "capture"
+    _capture_video_dir = "video"
+    _capture_img_dir = "images"
     _model: YOLO = None
     _models_dict: dict = None
     _file_number: int = 0
-    _file_name: str = None
+    _video_file_name: str = None
+    _img_file_name: str = None
+    _img_file_full_path: str = None
     _cap: cv2.VideoCapture = None
     _cap_config: dict = None
     _out = None
@@ -57,16 +61,21 @@ class OSVDetect(OCVMainClass):
         self._models_dict = self._model.names
         # print(self._models_dict)
 
-    def change_out_file(self):
+    def change_video_out_file(self):
         today_date = datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S")
         self._file_number += 1
-        self._file_name = f"capture_{today_date}_{secrets.token_hex(nbytes=2)}.avi"
+        add_token = secrets.token_hex(nbytes=2)
+        self._video_file_name = f"capture_{today_date}_{add_token}.avi"
+        self._img_file_name = f"capture_{today_date}_{add_token}.jpg"
         cur_dir = os.path.dirname(__file__)
-        record_file_name = os.path.join(cur_dir, self._data_dir, self._capture_dir, self._file_name)
+        video_dir_path = os.path.join(cur_dir, self._data_dir, self._capture_dir, self._capture_video_dir)
+        img_dir_path = os.path.join(cur_dir, self._data_dir, self._capture_dir, self._capture_img_dir)
+        self._img_file_full_path = os.path.join(img_dir_path, self._img_file_name)
+        record_video_file_name = os.path.join(video_dir_path, self._video_file_name)
         fps = self._cap_config.get("fps")
         w = self._cap_config.get("width")
         h = self._cap_config.get("height")
-        self._out = cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+        self._out = cv2.VideoWriter(record_video_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
     async def img_boxes_handler(self, img, boxes) -> tuple:
         """ detects classes in boxes and count them
@@ -103,8 +112,8 @@ class OSVDetect(OCVMainClass):
                               "box_y2": y2,
                               "frame_width": self._cap_config.get("width"),
                               "frame_height": self._cap_config.get("height"),
-                              "path": self._file_name,
-                              "description": f"camera captured writed to {self._file_name}"
+                              "path": self._video_file_name,
+                              "description": f"camera captured writed to {self._video_file_name}"
                               })
             await db_writer(data_dict)
 
@@ -118,6 +127,7 @@ class OSVDetect(OCVMainClass):
         maximal_detected_obj_count = 0
         capture_detection_obj_start_time = None
         capture_start_datetime = None
+        last_detected_img = None
         try:
             while True:
                 # read cap res
@@ -142,11 +152,11 @@ class OSVDetect(OCVMainClass):
                         # if first detection
                         if detection_obj_captured is False:
                             print(f"Object '{self._capture_class}' just captured at {datetime.datetime.now()}")
-                            self.change_out_file()
-                            print(f"video writed in file {self._file_name}")
+                            self.change_video_out_file()
+                            print(f"video writed in file {self._video_file_name}")
                             capture_detection_obj_start_time = time.time()
                             capture_start_datetime = datetime.datetime.now()
-
+                        last_detected_img = img
                         detection_obj_captured = True
                         detected_obj_captured_last_time = datetime.datetime.now()
                         self._out.write(img)
@@ -161,7 +171,8 @@ class OSVDetect(OCVMainClass):
                                 capture_time = time.time() - capture_detection_obj_start_time
                                 print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
-
+                                cv2.imwrite(self._img_file_full_path, last_detected_img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                print(f"image '{self._img_file_name}' saved")
                                 # put data to database
                                 data_dict = dict({"created": capture_start_datetime,
                                                   "closed": detected_obj_captured_last_time,
@@ -171,12 +182,13 @@ class OSVDetect(OCVMainClass):
                                                   "frame_width": self._cap_config.get("width"),
                                                   "frame_height": self._cap_config.get("height"),
                                                   "count": maximal_detected_obj_count,
-                                                  "path": self._file_name,
+                                                  "video_file": self._video_file_name,
+                                                  "image_file": self._img_file_name,
                                                   "description": "test person detection",
                                                   "react": "tg",
                                                   "react_time": datetime.datetime.now()
                                                   })
-                                await  db_writer2(data_dict)
+                                await db_writer2(data_dict)
                                 maximal_detected_obj_count = 0
 
                         else:

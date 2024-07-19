@@ -72,10 +72,11 @@ class DBConnGetFromTableAsync(DBConnMainClass):
             await self._engine_async.dispose()
 
     async def get_filtered_data_from_table_async(self, table_name: str = None,
+                                                 col_name: str = None,
+                                                 is_val=None,
                                                  from_val=None,
-                                                 to_val=None,
-                                                 col_name: str = None) -> list:
-        if col_name is None:
+                                                 to_val=None) -> list:
+        if (col_name is None) or not (from_val or to_val or is_val):
             return await self.get_all_data_from_table_async(table_name=table_name)
 
         from DBModule.DBConn.DBConnGetModClass import DBConnGetModClass
@@ -88,10 +89,15 @@ class DBConnGetFromTableAsync(DBConnMainClass):
         try:
             async with async_session() as session:
                 filtered_request = select(model_main_class)
-                if from_val:
-                    filtered_request = filtered_request.filter(getattr(model_main_class, col_name) >= from_val)
-                if to_val:
-                    filtered_request = filtered_request.filter(getattr(model_main_class, col_name) <= to_val)
+                if is_val:
+                    filtered_request = filtered_request.filter(getattr(model_main_class, col_name) == is_val)
+                else:
+
+                    if from_val:
+                        filtered_request = filtered_request.filter(getattr(model_main_class, col_name) >= from_val)
+                    if to_val:
+                        filtered_request = filtered_request.filter(getattr(model_main_class, col_name) <= to_val)
+
 
                 res = (await session.execute(filtered_request)).scalars().all()
             for row in res:
