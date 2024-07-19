@@ -6,4 +6,4 @@ private_commands = [BotCommand(command="start", description="🆕Обновит�
                     BotCommand(command="admin", description="📃Обновление списка пользователей"),
                     BotCommand(command="upload", description="Сохранить файл"),
                     BotCommand(command="download", description="Получить файл"),
-                    BotCommand(command="report", description="📉Отчеты")]
+                    BotCommand(command="records", description="📹Записи камер")]

@@ -40,8 +40,8 @@ class BOTFilterFinList(Filter):
 
     def __init__(self):
         """ filter for financial group members"""
-        from AiogramPackage.TGConnectors.BOTReadJsonAsync import BOTReadJsonAsync
-        self.connector = BOTReadJsonAsync()
+        from AiogramPackage.TGConnectors.BOTReadJson import BOTReadJson
+        self.connector = BOTReadJson()
 
     async def __call__(self, message: types.Message, bot: Bot) -> bool:
         self._module_config = await self.connector.get_main_config_json_data_async(self._config_dir_name,

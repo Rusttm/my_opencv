@@ -61,6 +61,7 @@ bot.chat_group_admins_list = [731370983]
 bot.fins_list = [731370983]
 bot.restricted_words = ['idiot']
 bot.filters_dict = dict()
+records_delay = 6000 # seconds
 
 
 async def on_startup(bot):
@@ -76,57 +77,33 @@ async def on_shutdown():
 
 # from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
 async def scheduler():
-    update_time = "17:00"
-    aioschedule.every().day.at(update_time).do(scheduller_sends)
-    aioschedule.every().hour.at(":01").do(service_sends)
+    aioschedule.every(records_delay).seconds.do(records_sent)
     # aioschedule.every(10).minutes.do(service_sends)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
 
 
-async def scheduller_sends():
-    try:
-        # from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
-        # connector = TGMSConnector()
-        # prepare_rep_string = await connector.get_summary_rep_str_async()
-
-        prepare_rep_string = f"здесь чтото должно рассылаться"
-        # recipients_list = bot.admins_list
-        recipients_list = bot.fins_list
-        for recipient_id in recipients_list:
-            try:
-                await bot.send_message(chat_id=recipient_id, text="Время <b>ежедневного</b> отчета:")
-                await bot.send_message(chat_id=recipient_id, text=prepare_rep_string)
-            except Exception as e:
-
-                err_msg = f"Не могу отправить ежедневный отчет в чат {recipient_id}, ошибка:\n{e}"
-                err_msg += f"Исключите пользователя с id {recipient_id} из списка в файле config/bot_main_config.json"
-                await bot.send_message(chat_id=bot.admins_list[0],
-                                       text=err_msg)
-    except Exception as e:
-
-        await bot.send_message(chat_id=bot.admins_list[0], text=f"Не могу отправить ежедневный отчет, ошибка:\n{e}")
-    print("It's reports time! Go on!")
-
-async def service_sends():
+async def records_sent():
     """ loads data from Postgresql database (service table)"""
-    service_msg = str()
+    records_list = list()
     try:
-        # service_msg = await download_service_events_row_async()
-        service_msg = "ежечаcное сервисное сообщение"
-        if not service_msg:
+        from TGConnectors.TGDBConnector import TGDBConnector
+        conn = TGDBConnector()
+        records_list = await conn.get_detected_obj_last_delay_async()
+
+        if not records_list:
             return False
         else:
             recipients_list = bot.admins_list
             # recipients_list = bot.fins_list
             for recipient_id in recipients_list:
                 try:
-                        await bot.send_message(chat_id=recipient_id, text="Обновлена CAP_db:")
-                        await bot.send_message(chat_id=recipient_id, text=service_msg)
+                    for rec in records_list:
+                        await bot.send_message(chat_id=recipient_id, text=f"{rec.get("position_id")}")
                 except Exception as e:
-                    err_msg = f"Не могу отправить данные об обновлениях в чат {recipient_id}, ошибка:\n{e}"
-                    err_msg += f"Найдено {len(service_msg)} записей, ошибка:\n{e}"
+                    err_msg = f"Не могу отправить данные о записях в чат {recipient_id}, ошибка:\n{e}"
+                    err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
                     await bot.send_message(chat_id=bot.admins_list[0], text=err_msg)
     except Exception as e:
         await bot.send_message(chat_id=bot.admins_list[0], text=f"Не могу найти обновления, ошибка:\n{e}")

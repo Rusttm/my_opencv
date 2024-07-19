@@ -5,7 +5,7 @@ import aiofiles
 import asyncio
 
 
-class BOTReadJsonAsync(object):
+class BOTReadJson(object):
     """read and return data from json file
     configurator initialised"""
     logger_name = f"{os.path.basename(__file__)}"
@@ -73,6 +73,6 @@ if __name__ == '__main__':
     # print(connector.get_config_json_data_sync(file_name='url_money.json'))
     # connector2 = GSReadJsonAsync(dir_name="data", file_name="spread_sheet_metadata.json")
     # print(asyncio.run(connector2.get_json_data_async()))
-    connector3 = BOTReadJsonAsync()
+    connector3 = BOTReadJson()
     print(asyncio.run(connector3.get_main_config_json_data_async()))
     # print(connector3.get_config_json_data_sync())

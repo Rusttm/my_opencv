@@ -1,14 +1,14 @@
 from AiogramPackage.TGConnectors.BOTPkgLogger import BOTPkgLogger
-from AiogramPackage.TGConnectors.BOTReadJsonAsync import BOTReadJsonAsync
+from AiogramPackage.TGConnectors.BOTReadJson import BOTReadJson
 import os
 
 
-class BOTMainClass(BOTPkgLogger, BOTReadJsonAsync):
+class BOTMainClass(BOTPkgLogger, BOTReadJson):
     logger_name = f"{os.path.basename(__file__)}"
 
     def __init__(self):
         super().__init__()
-        BOTReadJsonAsync.__init__(self)
+        BOTReadJson.__init__(self)
 
     def python_version_checker(self):
         import sys

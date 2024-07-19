@@ -21,11 +21,22 @@ from aiogram.methods.delete_message import DeleteMessage
 
 from AiogramPackage.TGFilters.BOTFilter import BOTFilterChatType, BOTFilterFinList, BOTFilterIsGroupAdmin, \
     BOTFilterAdminList
+from AiogramPackage.TGKeyboards.TGKeybInline import get_callback_btns
 from AiogramPackage.TGKeyboards.TGKeybReplyBuilder import reply_kb_lvl1_admin, del_kb, reply_kb_lvl2_admin
 from AiogramPackage.TGAlchemy.TGDbQueriesEvent import db_add_event
 from AiogramPackage.TGAlchemy.TGModelEvent import TGModelEvent
+import datetime
 
 _static_dir = "data_static"
+_pkg_dir = "AiogramPackage"
+_detect_dir = "OCVYolo8"
+_detect_data_dir = "data"
+_detect_cap_dir = "capture"
+_detect_img_dir = "images"
+_detect_video_dir = "video"
+_reports_img = "plot_img.jpg"
+_await_sticker = "CAACAgIAAxkBAAELd3Vl1n8pL3dHXcijRQ6OSUXB4Iu7EwACGwMAAs-71A7CHN2zMqnsdTQE"
+
 
 admin_private_router = Router()
 admin_private_router.message.filter(BOTFilterChatType(["private"]), BOTFilterAdminList())
@@ -57,8 +68,8 @@ async def reload_admins_list(bot: Bot):
     _config_file_name = "bot_main_config.json"
     _static_dir = "data_static"
     _module_config: dict = None
-    from AiogramPackage.TGConnectors.BOTReadJsonAsync import BOTReadJsonAsync
-    connector = BOTReadJsonAsync()
+    from AiogramPackage.TGConnectors.BOTReadJson import BOTReadJson
+    connector = BOTReadJson()
     _module_config = await connector.get_main_config_json_data_async(_config_dir_name, _config_file_name)
     admin_members_dict = _module_config.get(_main_key).get(_admin_key)
     fin_members_dict = _module_config.get(_main_key).get(_fin_key)
@@ -214,3 +225,45 @@ async def admin_menu_cmd(message: types.Message):
                              resize_keyboard=True,
                              input_field_placeholder="Что Вас интересует?"
                          ))
+
+@admin_private_router.message(Command("records"))
+async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
+    try:
+        from AiogramPackage.TGConnectors.TGDBConnector import TGDBConnector
+        conn = TGDBConnector()
+        records_list = await conn.get_detected_obj_last_delay_async()
+
+        if not records_list:
+            await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")
+        else:
+            up_up_cur_file_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            img_dir = os.path.join(up_up_cur_file_path, _detect_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
+            try:
+                for rec in records_list:
+                    img_name = rec.get("image_file")
+                    video_name = rec.get("video_file")
+                    img_data = rec.get("inserted_at").strftime("%H:%M")
+                    img_timelaps = int(rec.get("time"))
+                    img_obj = rec.get("category_name")
+                    img_obj_count = int(rec.get("count"))
+                    img_path = os.path.join(img_dir, img_name)
+                    await message.answer(f"image file:{img_path=}")
+                    async with aiofiles.open(img_path, mode="rb") as rec_img:
+                        await bot.send_photo(chat_id=message.chat.id,
+                                             photo=BufferedInputFile(file=await rec_img.read(),
+                                                                     filename=f"{img_name}"),
+                                             caption=f"Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
+                                                     f"Обнаружено {img_obj_count} {img_obj} ",
+                                             reply_markup=get_callback_btns(btns={
+                                                 "Скачать видео": f"download_video_{message.chat.id}_{video_name}",
+                                             }),
+                                             request_timeout=100)
+
+
+            except Exception as e:
+                err_msg = f"Не могу отправить данные об обновлениях в чат {message.chat.id}, ошибка:\n{e}"
+                err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
+                await message.answer(err_msg)
+    except Exception as e:
+        await message.answer(f"Не могу найти записи камер, ошибка:\n{e}")
+    print(datetime.datetime.now(), "\nCheck the DataBase")
