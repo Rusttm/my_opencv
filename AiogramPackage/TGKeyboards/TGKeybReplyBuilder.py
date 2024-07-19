@@ -20,6 +20,7 @@ reply_kb_lvl1_admin = ReplyKeyboardBuilder()
 # adds reports to common keyboard
 reply_kb_lvl1_admin.attach(reply_kb_lvl1)
 reply_kb_lvl1_admin.row(KeyboardButton(text="📹Запросить записи камер"))
+reply_kb_lvl1_admin.row(KeyboardButton(text="🗃️Дополнительно"))
 del_kb = ReplyKeyboardRemove()
 
 # second keyboard for admin

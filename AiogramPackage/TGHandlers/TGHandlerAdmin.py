@@ -106,6 +106,14 @@ async def menu_cmd(message: types.Message):
                              resize_keyboard=True,
                              input_field_placeholder="Что Вас интересует?"))
 
+@admin_private_router.message(or_f(Command("addition", ignore_case=True), (F.text.lower().contains("дополнительно"))))
+async def menu_cmd(message: types.Message):
+    # ver1
+    # await message.answer(f"{message.from_user.first_name}, welcome to main menu!", reply_markup=my_reply_kb.del_kb)
+    await message.answer(f"{message.from_user.first_name}, welcome to admin file menu!",
+                         reply_markup=reply_kb_lvl2_admin.as_markup(
+                             resize_keyboard=True,
+                             input_field_placeholder="Что Вас интересует?"))
 
 @admin_private_router.message(Command("save", "upload", ignore_case=True))
 @admin_private_router.message(StateFilter(None), F.text == "save")
