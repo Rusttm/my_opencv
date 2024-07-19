@@ -2,6 +2,7 @@ from MoiSkladPackage.MSControllers.MSGSControllerAsync import MSGSControllerAsyn
 import os
 import logging
 
+
 class TGMSConnector(MSGSControllerAsync):
     logger_name = f"{os.path.basename(__file__)}"
 
@@ -22,6 +23,7 @@ class TGMSConnector(MSGSControllerAsync):
         else:
             res_str = f"<a href='{gs_href + '/edit#gid=' + str(ws_id)}'>💰Денег на <b>счетах:</b> {int(total)}руб.</a>\n"
         return res_str
+
     async def get_debt_rep_str_async(self):
         res_str = str()
         try:
@@ -36,6 +38,7 @@ class TGMSConnector(MSGSControllerAsync):
         else:
             res_str = f"<a href='{gs_href + '/edit#gid=' + str(ws_id)}'>🚬<b>Задолженность</b> клиентов на сегодня: {int(total)}руб.</a>\n"
         return res_str
+
     async def get_profit_rep_str_async(self):
         res_str = str()
         try:
@@ -50,6 +53,7 @@ class TGMSConnector(MSGSControllerAsync):
         else:
             res_str = f"<a href='{gs_href + '/edit#gid=' + str(ws_id)}'>💸<b>Прибыль</b> по месяцу: {int(total)}руб.</a>\n"
         return res_str
+
     async def get_bal_rep_str_async(self):
         res_str = str()
         try:
@@ -64,6 +68,7 @@ class TGMSConnector(MSGSControllerAsync):
         else:
             res_str = f"<a href='{gs_href + '/edit#gid=' + str(ws_id)}'>⚖️<b>Баланс</b> на сегодня: {int(total)}руб.</a>\n"
         return res_str
+
     async def get_margins_rep_str_async(self):
         res_str = str()
         try:
@@ -91,6 +96,7 @@ class TGMSConnector(MSGSControllerAsync):
             self.logger.warning(res_str)
             logging.warning(res_str)
         return res_str
+
     async def get_summary_rep_str_async(self):
         res_str = str()
         try:

@@ -2,38 +2,38 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 reply_kb_lvl1 = ReplyKeyboardBuilder()
+
+# start keyboard for everyone
 reply_kb_lvl1.add(
-    KeyboardButton(text="Каталог"),
-    KeyboardButton(text="Реквизиты Компании")
-)
-# reply_kb_lvl1.adjust(2, 2)
+    KeyboardButton(text="Реквизиты Компании"))
+# start keyboard shape
 reply_kb_lvl1.adjust(1, 1)
 
+# second keyboard for everyone
 reply_kb_lvl2 = ReplyKeyboardBuilder()
 reply_kb_lvl2.add(
     KeyboardButton(text="Инструмент"),
     KeyboardButton(text="Запчасти"),
-    KeyboardButton(text="Меню")
-
-)
+    KeyboardButton(text="Меню"))
 reply_kb_lvl2.adjust(2, 1)
 
+# start keyboard for admin
 reply_kb_lvl1_admin = ReplyKeyboardBuilder()
+# adds reports to common keyboard
 reply_kb_lvl1_admin.attach(reply_kb_lvl1)
-reply_kb_lvl1_admin.row(
-    KeyboardButton(text="Отчеты")
-)
+reply_kb_lvl1_admin.row(KeyboardButton(text="Работа с файлами"))
 del_kb = ReplyKeyboardRemove()
 
+# second keyboard for admin
 reply_kb_lvl2_admin = ReplyKeyboardBuilder()
 reply_kb_lvl2_admin.row(
-    KeyboardButton(text="Прибыли"),
-    KeyboardButton(text="Баланс"),
-    KeyboardButton(text="Меню")
-)
+    KeyboardButton(text="Записать файл"),
+    KeyboardButton(text="Получить файл"),
+    KeyboardButton(text="Меню"))
 reply_kb_lvl2_admin.adjust(2, 1)
 
 
+# inline kbd constructor
 def get_my_kb(
         *btns: str,
         placeholder: str = None,

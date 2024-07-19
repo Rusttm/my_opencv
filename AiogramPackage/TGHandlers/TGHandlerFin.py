@@ -19,7 +19,7 @@ from aiogram.utils.markdown import hbold
 from AiogramPackage.TGFilters.BOTFilter import BOTFilterChatType, BOTFilterFinList, BOTFilterIsGroupAdmin
 from AiogramPackage.TGKeyboards.TGKeybReplyBuilder import reply_kb_lvl1_admin, del_kb
 from AiogramPackage.TGKeyboards.TGKeybInline import get_callback_btns
-from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
+# from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
 from AiogramPackage.TGMiddleWares.TGMWCallbackData import TGMWCallbackData
 
 _static_dir = "data_static"
@@ -92,7 +92,8 @@ async def send_summary_rep_daily(message: types.Message, state: FSMContext, bot:
     today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     res_msg = str(f"Отчет на {today}\n")
     try:
-        res_msg += await TGMSConnector().get_summary_rep_str_async()
+        # res_msg += await TGMSConnector().get_summary_rep_str_async()
+        res_str = "строка с отчетом"
     except Exception as e:
         msg = f"Can't form summary daily report, Error:\n {e}"
         logging.warning(msg)

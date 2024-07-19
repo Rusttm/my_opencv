@@ -40,14 +40,14 @@ class DownLoadFile(StatesGroup):
     download_file = State()
 
 
-
 def clean_text(text: str):
     """ вырезает из текста знаки"""
     return text.translate(str.maketrans("", "", punctuation))
 
 
 async def reload_admins_list(bot: Bot):
-    """ some lists should be reloaded by /admin command"""
+    """ this module loads lists of groups members and restricted words
+    some lists should be reloaded by /admin command"""
     _main_key = "bot_config"
     _admin_key = "admin_members"
     _filters_key = "filters_config"
@@ -84,16 +84,6 @@ async def admin_cmd(message: types.Message, bot: Bot):
     """ this handler reloads group admins list"""
     await reload_admins_list(bot=bot)
     await message.delete()
-
-
-# @admin_private_router.message(Command("report", "rep", ignore_case=True))
-# @admin_private_router.message(F.text.lower().contains("отчеты"))
-# async def menu_cmd(message: types.Message):
-#     await message.answer(f"{hbold(message.from_user.first_name)}, welcome to <b>reports!</b>", reply_markup=
-#     reply_kb_lvl2_admin.as_markup(
-#         resize_keyboard=True,
-#         input_field_placeholder="Какой отчет Вас интересует?"))
-#     logging.info("requested reports")
 
 
 @admin_private_router.message(or_f(Command("menu", "men", ignore_case=True), (F.text.lower().contains("меню"))))

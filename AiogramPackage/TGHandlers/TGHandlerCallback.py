@@ -17,11 +17,12 @@ from aiogram.utils.formatting import as_list, as_marked_section, Bold
 
 from AiogramPackage.TGFilters.BOTFilter import BOTFilterChatType, BOTFilterFinList
 from AiogramPackage.TGAlchemy.TGDbQueriesProd import db_get_prod
-from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
+# from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
 from AiogramPackage.TGMiddleWares.TGMWCallbackData import TGMWCallbackData
 
 _static_dir = "data_static"
 _reports_img = "plot_img.jpg"
+# Bender sticker number
 _await_sticker = "CAACAgIAAxkBAAELd3Vl1n8pL3dHXcijRQ6OSUXB4Iu7EwACGwMAAs-71A7CHN2zMqnsdTQE"
 
 callback_router = Router()
@@ -51,7 +52,8 @@ async def get_rep_fin_profit_daily(callback: types.CallbackQuery, bot: Bot):
         temp_msg2 = await bot.send_message(chat_id=int(extra_data),
                                            text=f"Отчет готовится, это займет несколько секунд ...")
     try:
-        res_str = await TGMSConnector().get_profit_rep_str_async()
+        # res_str = await TGMSConnector().get_profit_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form daily profit report, Error:\n {e}"
@@ -70,7 +72,8 @@ async def get_rep_bal(callback: types.CallbackQuery, bot: Bot):
         temp_msg2 = await bot.send_message(chat_id=int(extra_data),
                                            text=f"Отчет готовится, это займет около 1 минуты ...")
     try:
-        res_str = await TGMSConnector().get_bal_rep_str_async()
+        # res_str = await TGMSConnector().get_bal_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form balance report, Error:\n {e}"
@@ -88,7 +91,8 @@ async def get_rep_debt(callback: types.CallbackQuery, bot: Bot):
         temp_msg2 = await bot.send_message(chat_id=int(extra_data),
                                            text=f"Отчет готовится, это займет несколько секунд ...")
     try:
-        res_str = await TGMSConnector().get_debt_rep_str_async()
+        # res_str = await TGMSConnector().get_debt_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form debt report, Error:\n {e}"
@@ -106,7 +110,8 @@ async def get_rep_margins(callback: types.CallbackQuery, bot: Bot):
         temp_msg2 = await bot.send_message(chat_id=int(extra_data),
                                            text=f"Отчет готовится, это займет несколько секунд ...")
     try:
-        res_str = await TGMSConnector().get_margins_rep_str_async()
+        # res_str = await TGMSConnector().get_margins_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form margins report, Error:\n {e}"
@@ -127,7 +132,8 @@ async def get_rep_account(callback: types.CallbackQuery, bot: Bot):
                                            text=f"Отчет готовится, это займет несколько секунд ...")
     # temp_msg = await bot.send_message(chat_id=extra_data, text=extra_data)
     try:
-        res_str = await TGMSConnector().get_account_rep_str_async()
+        # res_str = await TGMSConnector().get_account_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form accounts report, Error:\n {e}"
@@ -149,7 +155,8 @@ async def get_rep_daily(callback: types.CallbackQuery, callback_answer: Callback
     today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     res_str = str(f"Отчет на {today}\n")
     try:
-        res_str += await TGMSConnector().get_summary_rep_str_async()
+        # res_str += await TGMSConnector().get_summary_rep_str_async()
+        res_str = "строка с отчетом"
         await callback.message.answer(res_str)
     except Exception as e:
         res_str = f"Can't form accounts report, Error:\n {e}"

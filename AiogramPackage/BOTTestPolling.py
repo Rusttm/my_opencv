@@ -66,7 +66,7 @@ bot.filters_dict = dict()
 async def on_startup(bot):
     print("bot runs")
     await reload_admins_list(bot)
-    await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
+    # await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
     asyncio.create_task(scheduler())
 
 
@@ -114,7 +114,7 @@ async def service_sends():
     service_msg = str()
     try:
         # service_msg = await download_service_events_row_async()
-        service_msg = "ежечаcное сервисное сообщение"
+        service_msg = "ежечаное сервисное сообщение"
         if not service_msg:
             return False
         else:
