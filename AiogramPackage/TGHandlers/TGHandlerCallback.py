@@ -35,7 +35,9 @@ async def download_video_file(callback: types.CallbackQuery, callback_answer: Ca
     # recieve chat_id
     if extra_data:
         temp_msg = await bot.send_sticker(chat_id=int(chat_id), sticker=_await_sticker)
-        temp_msg2 = await bot.send_message(chat_id=int(chat_id), text=f"Отчет готовится, это займет около 1 минуты ...")
+        temp_msg2 = await bot.send_message(chat_id=int(chat_id),
+                                           text=f"Отчет готовится, это займет мене 1 минуты ..."
+                                                f"Не забывайте, что очень большие файлы (>30Mb) не загружаются")
     today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     try:
         up_up_cur_file_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))

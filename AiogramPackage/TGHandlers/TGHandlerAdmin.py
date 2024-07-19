@@ -37,6 +37,7 @@ _detect_img_dir = "images"
 _detect_video_dir = "video"
 _reports_img = "plot_img.jpg"
 _await_sticker = "CAACAgIAAxkBAAELd3Vl1n8pL3dHXcijRQ6OSUXB4Iu7EwACGwMAAs-71A7CHN2zMqnsdTQE"
+_delay_time = 6000   # sec
 
 
 admin_private_router = Router()
@@ -232,6 +233,41 @@ async def admin_menu_cmd(message: types.Message):
                              input_field_placeholder="Что Вас интересует?"
                          ))
 
+class SetTime(StatesGroup):
+    time_set = State()
+
+@admin_private_router.message(StateFilter('*'), Command("cancel", ignore_case=True))
+@admin_private_router.message(StateFilter('*'), F.text.casefold() == "отмена")
+async def cancel_find_instrument(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+    await state.clear()
+    await message.answer(f"Ввод ❌<b>Отменен</b>", reply_markup=
+    reply_kb_lvl1_admin.as_markup(resize_keyboard=True, input_field_placeholder="Что Вас интересует?"))
+
+
+@admin_private_router.message(Command("time"))
+async def admin_menu_cmd(message: types.Message, state: FSMContext):
+    await message.answer(f"If you want to set time delay, enter number or type cancel\n", input_field_placeholder="Введите количество секунд")
+    await state.set_state(SetTime.time_set)
+
+@admin_private_router.message(SetTime.time_set)
+async def admin_menu_cmd(message: types.Message, state: FSMContext):
+    await message.answer(f"If you want to set time delay, enter number or type cancel\n", input_field_placeholder="Введите количество секунд")
+    global _delay_time
+    seconds_num = _delay_time
+    try:
+        seconds_num = int(message.text)
+    except:
+        await message.answer(f"your enter {message.text} cant convert to integer.\n"
+                             f" please make request again")
+    else:
+        _delay_time = seconds_num
+        await message.answer(f"your change time delay to {seconds_num} second")
+    finally:
+        await state.clear()
+
 @admin_private_router.message(Command("records"))
 @admin_private_router.message(F.text.lower().contains("записи"))
 async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
@@ -239,7 +275,7 @@ async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
     try:
         from AiogramPackage.TGConnectors.TGDBConnector import TGDBConnector
         conn = TGDBConnector()
-        records_list = await conn.get_detected_obj_last_delay_async()
+        records_list = await conn.get_detected_obj_last_delay_async(delay=_delay_time)
 
         if not records_list:
             await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")

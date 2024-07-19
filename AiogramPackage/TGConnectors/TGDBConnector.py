@@ -10,8 +10,10 @@ class TGDBConnector(DBContGetDataCaptureTgTableAsync):
     def __init__(self):
         super().__init__()
 
-    async def get_detected_obj_last_delay_async(self) -> list[dict]:
+    async def get_detected_obj_last_delay_async(self, delay: int = None) -> list[dict]:
         res_str = list()
+        if delay:
+            self._delay = delay
         try:
             detected_objs_list = await self.get_last_records_from_tg_db(delay=self._delay)
         except Exception as e:
