@@ -17,7 +17,7 @@ import time
 class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
     _weights_dir = "yolo-Weights"
-    _weights_file = "yolov8n.pt"
+    _weights_file = "yolov8x.pt"
     _data_dir = "data"
     _capture_dir = "capture"
     _model: YOLO = None
@@ -68,7 +68,9 @@ class OSVDetect(OCVMainClass):
         h = self._cap_config.get("height")
         self._out = cv2.VideoWriter(record_file_name, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
-    def img_boxes_handler(self, img, boxes) -> tuple:
+    async def img_boxes_handler(self, img, boxes) -> tuple:
+        """ detects classes in boxes and count them
+        returns dictionary and img with boxes"""
         detected_classes_names_dict = dict({"person": 0})
         # print(f"{boxes=}")
         for box in boxes:
@@ -104,17 +106,17 @@ class OSVDetect(OCVMainClass):
                               "path": self._file_name,
                               "description": f"camera captured writed to {self._file_name}"
                               })
-            asyncio.run(db_writer(data_dict))
+            await db_writer(data_dict)
 
         return detected_classes_names_dict, img
 
-    def run_detect_from_cap(self):
+    async def run_detect_from_cap(self):
         """ method capture the frame recognize and writes it in file"""
-        person_captured = False
-        person_captured_last_time = datetime.datetime.now()
-        person_captured_time_delay = self._capture_delay
-        maximal_persons_count = 0
-        capture_person_start_time = None
+        detection_obj_captured = False
+        detected_obj_captured_last_time = datetime.datetime.now()
+        detection_obj_captured_time_delay = self._capture_delay
+        maximal_detected_obj_count = 0
+        capture_detection_obj_start_time = None
         capture_start_datetime = None
         try:
             while True:
@@ -126,57 +128,59 @@ class OSVDetect(OCVMainClass):
                 # run model recognition
                 results = self._model(img, imgsz=[w, h], rect=True, verbose=False)
                 for result in results:
-                    detected_names_dict, img = self.img_boxes_handler(img, boxes=result.boxes)
-                    persons_num = detected_names_dict.get(self._capture_class, 0)
+                    detected_names_dict, img = await self.img_boxes_handler(img, boxes=result.boxes)
+                    detection_obj_num = detected_names_dict.get(self._capture_class, 0)
 
                     # capture tail part
-                    time_limit = person_captured_last_time + datetime.timedelta(seconds=person_captured_time_delay)
+                    time_limit = detected_obj_captured_last_time + datetime.timedelta(seconds=detection_obj_captured_time_delay)
                     time_is_passed = datetime.datetime.now() > time_limit
 
                     # if detect person in frame
-                    if persons_num > 0:
-                        maximal_persons_count = max(persons_num, maximal_persons_count)
-                        # print(f"persons detected {persons_num}")
+                    if detection_obj_num > 0:
+                        maximal_detected_obj_count = max(detection_obj_num, maximal_detected_obj_count)
+                        # print(f"persons detected {detection_obj_num}")
                         # if first detection
-                        if person_captured is False:
-                            print(f"person just captured at {datetime.datetime.now()}")
+                        if detection_obj_captured is False:
+                            print(f"Object '{self._capture_class}' just captured at {datetime.datetime.now()}")
                             self.change_out_file()
                             print(f"video writed in file {self._file_name}")
-                            capture_person_start_time = time.time()
+                            capture_detection_obj_start_time = time.time()
                             capture_start_datetime = datetime.datetime.now()
 
-                        person_captured = True
-                        person_captured_last_time = datetime.datetime.now()
+                        detection_obj_captured = True
+                        detected_obj_captured_last_time = datetime.datetime.now()
                         self._out.write(img)
                     # if person already detected early but not now
                     else:
                         if time_is_passed:
-                            if person_captured:
-                                person_captured = False
-                                person_captured_last_time = datetime.datetime.now()
-                                print(f"maximum persons detected {maximal_persons_count}")
+                            if detection_obj_captured:
+                                detection_obj_captured = False
+                                detected_obj_captured_last_time = datetime.datetime.now()
+                                print(f"maximum {self._capture_class} detected {maximal_detected_obj_count}")
 
-                                capture_time = time.time() - capture_person_start_time
+                                capture_time = time.time() - capture_detection_obj_start_time
                                 print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
 
                                 # put data to database
                                 data_dict = dict({"created": capture_start_datetime,
-                                                  "closed": person_captured_last_time,
+                                                  "closed": detected_obj_captured_last_time,
                                                   "category_name": self._capture_class,
                                                   "confident": 0,
                                                   "time": capture_time,
                                                   "frame_width": self._cap_config.get("width"),
                                                   "frame_height": self._cap_config.get("height"),
-                                                  "count": maximal_persons_count,
+                                                  "count": maximal_detected_obj_count,
                                                   "path": self._file_name,
-                                                  "description": "test person detection"
+                                                  "description": "test person detection",
+                                                  "react": "tg",
+                                                  "react_time": datetime.datetime.now()
                                                   })
-                                asyncio.run(db_writer2(data_dict))
-                                maximal_persons_count = 0
+                                await  db_writer2(data_dict)
+                                maximal_detected_obj_count = 0
 
                         else:
-                            if person_captured:
+                            if detection_obj_captured:
                                 self._out.write(img)
 
                 cv2.imshow('Webcam', img)
@@ -193,4 +197,4 @@ class OSVDetect(OCVMainClass):
 if __name__ == '__main__':
     connector = OSVDetect()
     print(connector._models_dict)
-    connector.run_detect_from_cap()
+    asyncio.run(connector.run_detect_from_cap())

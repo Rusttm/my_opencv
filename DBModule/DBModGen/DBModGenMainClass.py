@@ -72,5 +72,5 @@ class DBModGenMainClass(DBMainClass):
 if __name__ == "__main__":
     connect = DBModGenMainClass()
     connect.logger.info("testing MainClass")
-    asyncio.run(connect.create_model_py_file_from_json(file_name="video_capture_model"))
+    asyncio.run(connect.create_model_py_file_from_json(file_name="video_capture_tg_model"))
 

@@ -11,7 +11,7 @@ import asyncio
 class DBContPut2CaptureTableAsync(DBContMainClass):
     """ connector for work with tables"""
     logger_name = f"{os.path.basename(__file__)}"
-    _table_name = "video_capture_model"
+    _table_name = "video_capture_tg_model"
 
     def __init__(self):
         super().__init__()
@@ -41,7 +41,11 @@ def test_table_insertion():
                       "frame_height": 380,
                       "count": 2,
                       "path": "/temp",
-                      "description": "test write"
+                      "description": "test write",
+                      "react": "tg",
+                      "react_time": datetime.datetime.now()
+
+
                       })
     table_name = "video_capture_model"
     print(asyncio.run(connector.put_data_dict_2_capture_table_async(data_dict)))

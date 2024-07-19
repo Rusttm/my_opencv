@@ -1,3 +1,5 @@
+# test sqlite db create
+
 import sqlite3
 from sqlite3 import Error
 
