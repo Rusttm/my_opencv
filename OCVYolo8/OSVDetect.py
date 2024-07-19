@@ -178,13 +178,13 @@ class OSVDetect(OCVMainClass):
                                                   "closed": detected_obj_captured_last_time,
                                                   "category_name": self._capture_class,
                                                   "confident": 0,
-                                                  "time": capture_time,
+                                                  "time": round(capture_time, 1),
                                                   "frame_width": self._cap_config.get("width"),
                                                   "frame_height": self._cap_config.get("height"),
                                                   "count": maximal_detected_obj_count,
                                                   "video_file": self._video_file_name,
                                                   "image_file": self._img_file_name,
-                                                  "description": "test person detection",
+                                                  "description": f"test {self._capture_class} detection",
                                                   "react": "tg",
                                                   "react_time": datetime.datetime.now()
                                                   })
