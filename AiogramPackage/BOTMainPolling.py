@@ -58,7 +58,8 @@ bot.chat_group_admins_list = [731370983]
 bot.fins_list = [731370983]
 bot.restricted_words = ['idiot']
 bot.filters_dict = dict()
-records_delay = 6000 # seconds
+time_req_sec = 300 # seconds
+ # seconds
 
 
 async def on_startup(bot):
@@ -74,7 +75,7 @@ async def on_shutdown():
 
 # from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
 async def scheduler():
-    aioschedule.every(records_delay).seconds.do(records_sent)
+    aioschedule.every(time_req_sec).seconds.do(records_sent)
     # aioschedule.every(10).minutes.do(service_sends)
     while True:
         await aioschedule.run_pending()
@@ -87,7 +88,7 @@ async def records_sent():
     try:
         from TGConnectors.TGDBConnector import TGDBConnector
         conn = TGDBConnector()
-        records_list = await conn.get_detected_obj_last_delay_async()
+        records_list = await conn.get_detected_obj_last_delay_async(delay=time_req_sec)
 
         if not records_list:
             return False

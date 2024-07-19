@@ -9,6 +9,7 @@ from AiogramPackage.TGAlchemy.TGModelProdSQLite import async_session
 
 class DBMiddleware(BaseMiddleware):
     """ example middleware"""
+    session_pool = None
 
     def __init__(self, session_pool: async_sessionmaker):
         self.session_pool = session_pool
