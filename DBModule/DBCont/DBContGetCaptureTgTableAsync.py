@@ -30,7 +30,6 @@ class DBContGetDataCaptureTgTableAsync(DBContMainClass, DBConnGetFromTableAsync)
 
 def test_table_get():
     connector = DBContGetDataCaptureTgTableAsync()
-    table_name = "video_capture_tg_model"
     captured_list = asyncio.run(connector.get_new_records_from_tg_db())
     for capt in captured_list:
         print(capt)
