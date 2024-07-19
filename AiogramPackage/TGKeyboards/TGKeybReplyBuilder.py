@@ -5,31 +5,29 @@ reply_kb_lvl1 = ReplyKeyboardBuilder()
 
 # start keyboard for everyone
 reply_kb_lvl1.add(
-    KeyboardButton(text="Реквизиты Компании"))
+    KeyboardButton(text="🤝Контакты"))
 # start keyboard shape
 reply_kb_lvl1.adjust(1, 1)
 
 # second keyboard for everyone
 reply_kb_lvl2 = ReplyKeyboardBuilder()
 reply_kb_lvl2.add(
-    KeyboardButton(text="Инструмент"),
-    KeyboardButton(text="Запчасти"),
-    KeyboardButton(text="Меню"))
+    KeyboardButton(text="🚧Under construction"))
 reply_kb_lvl2.adjust(2, 1)
 
 # start keyboard for admin
 reply_kb_lvl1_admin = ReplyKeyboardBuilder()
 # adds reports to common keyboard
 reply_kb_lvl1_admin.attach(reply_kb_lvl1)
-reply_kb_lvl1_admin.row(KeyboardButton(text="Работа с файлами"))
+reply_kb_lvl1_admin.row(KeyboardButton(text="📹Запросить записи камер"))
 del_kb = ReplyKeyboardRemove()
 
 # second keyboard for admin
 reply_kb_lvl2_admin = ReplyKeyboardBuilder()
 reply_kb_lvl2_admin.row(
-    KeyboardButton(text="Записать файл"),
-    KeyboardButton(text="Получить файл"),
-    KeyboardButton(text="Меню"))
+    KeyboardButton(text="📥Записать файл"),
+    KeyboardButton(text="💾Получить файл"),
+    KeyboardButton(text="📃Меню"))
 reply_kb_lvl2_admin.adjust(2, 1)
 
 

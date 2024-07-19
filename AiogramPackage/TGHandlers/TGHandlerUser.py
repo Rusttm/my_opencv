@@ -43,18 +43,6 @@ async def start_cmd(message: types.Message):
                              resize_keyboard=True,
                              input_field_placeholder="Что Вас интересует"
                          ))
-    # version 3
-    # await message.answer(f"{message.from_user.first_name}, welcome to bot!",
-    #                      reply_markup=my_bld_kb.get_my_kb(
-    #                          "Меню",
-    #                          "О боте",
-    #                          "Реквизиты Компании",
-    #                          "Платежные реквизиты",
-    #                          placeholder="Выберите пункт меню",
-    #                          sizes=(2, 2)
-    #                      )
-    #                      )
-
 
 @user_router.message(Command("hide_menu", ignore_case=True))
 async def menu_cmd(message: types.Message):
@@ -68,29 +56,11 @@ async def menu_cmd(message: types.Message):
     # await message.answer(f"{message.from_user.first_name}, welcome to main menu!", reply_markup=my_reply_kb.del_kb)
     await message.answer(f"{html.quote(message.from_user.first_name)}, welcome to main menu!", reply_markup=reply_kb_lvl1)
 
-
-@user_router.message(Command("catalogue", ignore_case=True))
-@user_router.message((F.text.lower().contains("каталог")) | (F.text.lower().contains("catalogue")))
-async def menu_cmd(message: types.Message):
-    await message.answer(f"{hbold(message.from_user.first_name)}, welcome to <b>Catalogue</b>",
-                         reply_markup=reply_kb_lvl2.as_markup(
-                             resize_keyboard=True,
-                             input_field_placeholder="Что Вас интересует?"
-                         ))
-
-
-@user_router.message(F.text.lower().contains("реквизиты"))
+@user_router.message(F.text.lower().contains("контакты"))
 async def company_info_cmd(message: types.Message):
-    msg = str('<b>Наименование:</b> Акционерное общество «Серман»\n'
-              '<b>Адрес:</b> 125504, г. Москва, Дмитровское шоссе, д. 71Б, этаж 5, комната 7)\n'
-              '<b>ИНН / КПП:</b> 7743275417 / 774301001\n'
-              '<b>ОГРН/ОКПО:</b> 1187746831007/33241658\n'
-              '<b>БИК Банка:</b> 044525593\n'
-              '<b>Наименование банка:</b> АО "АЛЬФА-БАНК"\n'
-              '<b>Корреспондентский счет:</b> 30101810200000000593\n'
-              '<b>Расчетный счет:</b> 40702810801300031452\n'
-              '<b>Телефон:</b> +8 495 909 8033')
-    await message.answer(f"Здравствуйте, {hbold(html.quote(message.from_user.first_name))}, реквизиты нашей Копании:\n{msg}")
+    msg = str('<b>телеграм</b>: @rustammazhatov\n'
+              '<b>Email</b>: rustammazhatov@gmail.com\n')
+    await message.answer(f"Здравствуйте, {hbold(html.quote(message.from_user.first_name))}, мои контактные данные:\n{msg}")
 
 
 class FindInstrument(StatesGroup):

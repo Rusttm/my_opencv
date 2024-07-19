@@ -1,4 +1,4 @@
-""" модерация группы в которой бот является админом"""
+""" роутер приват чат с админом """
 
 import logging
 import os
@@ -25,6 +25,7 @@ from AiogramPackage.TGKeyboards.TGKeybInline import get_callback_btns
 from AiogramPackage.TGKeyboards.TGKeybReplyBuilder import reply_kb_lvl1_admin, del_kb, reply_kb_lvl2_admin
 from AiogramPackage.TGAlchemy.TGDbQueriesEvent import db_add_event
 from AiogramPackage.TGAlchemy.TGModelEvent import TGModelEvent
+
 import datetime
 
 _static_dir = "data_static"
@@ -42,7 +43,6 @@ admin_private_router = Router()
 admin_private_router.message.filter(BOTFilterChatType(["private"]), BOTFilterAdminList())
 
 
-# admin_group_router.edited_message.filter(BOTFilterChatType(["private", "group", "supergroup"]), BOTFilterAdminList())
 class SaveFile(StatesGroup):
     event_file = State()
 
@@ -149,7 +149,6 @@ async def add_event_img(message: types.Message, state: FSMContext, session: Asyn
         await state.clear()
 
 
-#
 @admin_private_router.message(SaveFile.event_file)
 async def add_event_img(message: types.Message):
     await message.answer("photo not added, please send me a photo")
@@ -157,7 +156,7 @@ async def add_event_img(message: types.Message):
 
 # from https://mastergroosha.github.io/aiogram-3-guide/messages/
 @admin_private_router.message(Command("download"))
-@admin_private_router.message(StateFilter(None), F.text.lower() == "download")
+@admin_private_router.message(StateFilter(None), F.text.lower().contains("получить"))
 async def download_static_file(message: types.Message, command: CommandObject, state: FSMContext):
     if command.args is None:
         await state.set_state(DownLoadFile.download_file)
@@ -216,7 +215,6 @@ async def save_static_file(message: types.Message, state: FSMContext, bot: Bot):
         await state.clear()
 
 
-
 @admin_private_router.message(CommandStart())
 @admin_private_router.message(F.text.lower() == "start")
 async def admin_menu_cmd(message: types.Message):
@@ -227,7 +225,9 @@ async def admin_menu_cmd(message: types.Message):
                          ))
 
 @admin_private_router.message(Command("records"))
+@admin_private_router.message(F.text.lower().contains("записи"))
 async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
+    """ main handler for records requests """
     try:
         from AiogramPackage.TGConnectors.TGDBConnector import TGDBConnector
         conn = TGDBConnector()
@@ -247,18 +247,17 @@ async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
                     img_obj = rec.get("category_name")
                     img_obj_count = int(rec.get("count"))
                     img_path = os.path.join(img_dir, img_name)
-                    await message.answer(f"image file:{img_path=}")
+                    # await message.answer(f"image file:{img_path=}")
                     async with aiofiles.open(img_path, mode="rb") as rec_img:
                         await bot.send_photo(chat_id=message.chat.id,
                                              photo=BufferedInputFile(file=await rec_img.read(),
                                                                      filename=f"{img_name}"),
-                                             caption=f"Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
+                                             caption=f"🎬Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
                                                      f"Обнаружено {img_obj_count} {img_obj} ",
                                              reply_markup=get_callback_btns(btns={
-                                                 "Скачать видео": f"download_video_{message.chat.id}_{video_name}",
+                                                 "🎬Скачать видео": f"download_video_{message.chat.id}_{video_name}",
                                              }),
                                              request_timeout=100)
-
 
             except Exception as e:
                 err_msg = f"Не могу отправить данные об обновлениях в чат {message.chat.id}, ошибка:\n{e}"

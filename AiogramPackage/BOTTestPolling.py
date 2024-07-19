@@ -18,7 +18,6 @@ from AiogramPackage.TGHandlers.TGHandlerCallback import callback_router
 from AiogramPackage.TGHandlers.TGHandlerUser import user_router
 from AiogramPackage.TGHandlers.TGHandlerGroup import user_group_router
 from AiogramPackage.TGHandlers.TGHandlerAdmin import admin_private_router
-from AiogramPackage.TGHandlers.TGHandlerFin import fin_group_router
 from AiogramPackage.TGCommon.TGBotCommandsList import private_commands
 from AiogramPackage.TGMiddleWares.TGMWDatabase import DBMiddleware
 # from AiogramPackage.TGAlchemy.TGModelService import download_service_events_row_async
@@ -45,16 +44,7 @@ dp = Dispatcher()
 # version2 update in outer middleware all events before filters
 # dp.update.outer_middleware(CounterMiddleware())
 
-# 0 router (handler)
-dp.include_router(callback_router)
-# 1 router (handler)
-dp.include_router(admin_private_router)
-# 2 router (handler)
-dp.include_router(fin_group_router)
-# 3 router (handler)
 dp.include_router(user_router)
-# 4 router (handler)
-dp.include_router(user_group_router)
 
 bot.admins_list = [731370983]
 bot.chat_group_admins_list = [731370983]
