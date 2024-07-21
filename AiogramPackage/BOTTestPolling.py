@@ -1,11 +1,24 @@
 # from https://docs.aiogram.dev/en/latest/
+# if mistakes "Passing coroutines is forbidden, use tasks explicitly” error when using aioschedule in Python 3.11"
+# In the “aioschedule” subdirectory, open the __init__.py file for editing.
+# from https://progr.interplanety.org/en/removing-the-passing-coroutines-is-forbidden-use-tasks-explicitly-error-when-using-aioschedule-in-python-3-11/
+
+# On line 107, replace
+# Python
+# jobs = [job.run() for job in self.jobs if job.should_run]
+# with
+# Python
+# jobs = [asyncio.create_task(job.run()) for job in self.jobs if job.should_run]
+#
+# and save changes.
+
 import asyncio
 import datetime
 
 import aioschedule
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.client.default import DefaultBotProperties
+# from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 # from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 
@@ -36,7 +49,8 @@ logger.info(f"logger {os.path.basename(__file__)} starts logging")
 # ALLOWED_UPDATES = ["message", "edited_message", "callback_query"]
 
 # bot = Bot(token=_config.get("bot_config").get("token"), parse_mode=ParseMode.HTML)
-bot = Bot(token=_config.get("bot_config").get("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+# bot = Bot(token=_config.get("bot_config").get("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=_config.get("bot_config").get("token"), parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
 # version1 work after filter middleware
@@ -66,10 +80,10 @@ async def on_shutdown():
 
 # from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
 async def scheduler():
-    update_time = "17:00"
-    aioschedule.every().day.at(update_time).do(scheduller_sends)
-    aioschedule.every().hour.at(":01").do(service_sends)
-    # aioschedule.every(10).minutes.do(service_sends)
+    # update_time = "17:00"
+    # aioschedule.every().day.at(update_time).do(scheduller_sends)
+    # aioschedule.every().hour.at(":01").do(service_sends)
+    aioschedule.every(1).minutes.do(service_sends)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)

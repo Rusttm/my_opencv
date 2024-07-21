@@ -5,7 +5,7 @@ import datetime
 import aioschedule
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.client.default import DefaultBotProperties
+# from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 # from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 
@@ -20,6 +20,7 @@ from AiogramPackage.TGHandlers.TGHandlerGroup import user_group_router
 from AiogramPackage.TGHandlers.TGHandlerAdmin import admin_private_router
 from AiogramPackage.TGCommon.TGBotCommandsList import private_commands
 from AiogramPackage.TGMiddleWares.TGMWDatabase import DBMiddleware
+
 # from AiogramPackage.TGAlchemy.TGModelService import download_service_events_row_async
 
 # from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
@@ -35,8 +36,10 @@ logger.info(f"logger {os.path.basename(__file__)} starts logging")
 # version1 set updates list
 # ALLOWED_UPDATES = ["message", "edited_message", "callback_query"]
 
-# bot = Bot(token=_config.get("bot_config").get("token"), parse_mode=ParseMode.HTML)
-bot = Bot(token=_config.get("bot_config").get("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+# ver for aiogram 3.3.0
+bot = Bot(token=_config.get("bot_config").get("token"), parse_mode=ParseMode.HTML)
+# for v3.10
+# bot = Bot(token=_config.get("bot_config").get("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
 # version1 work after filter middleware
@@ -58,33 +61,19 @@ bot.chat_group_admins_list = [731370983]
 bot.fins_list = [731370983]
 bot.restricted_words = ['idiot']
 bot.filters_dict = dict()
-time_req_sec = 300 # seconds
- # seconds
+time_req_sec = 60  # seconds
 
 
-async def on_startup(bot):
-    print("bot runs")
-    await reload_admins_list(bot)
-    await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
-    asyncio.create_task(scheduler())
+# seconds
 
 
 async def on_shutdown():
     print("Бот закрылся")
 
 
-# from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
-async def scheduler():
-    aioschedule.every(time_req_sec).seconds.do(records_sent)
-    # aioschedule.every(10).minutes.do(service_sends)
-    while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
-
-
 async def records_sent():
     """ loads data from Postgresql database (service table)"""
-    records_list = list()
+    # await asyncio.sleep(1)
     try:
         from TGConnectors.TGDBConnector import TGDBConnector
         conn = TGDBConnector()
@@ -98,7 +87,7 @@ async def records_sent():
             for recipient_id in recipients_list:
                 try:
                     for rec in records_list:
-                        await bot.send_message(chat_id=recipient_id, text=f"{rec.get("position_id")}")
+                        await bot.send_message(chat_id=recipient_id, text=f"{rec.get('position_id')}")
                 except Exception as e:
                     err_msg = f"Не могу отправить данные о записях в чат {recipient_id}, ошибка:\n{e}"
                     err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
@@ -106,6 +95,32 @@ async def records_sent():
     except Exception as e:
         await bot.send_message(chat_id=bot.admins_list[0], text=f"Не могу найти обновления, ошибка:\n{e}")
     print(datetime.datetime.now(), "\nCheck the DataBase")
+
+async def test_task():
+    print("new task run")
+    return
+
+
+# from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
+async def scheduler():
+    aioschedule.every(time_req_sec).seconds.do(records_sent)
+    aioschedule.every(time_req_sec).seconds.do(test_task)
+    # aioschedule.every().hour.at(":40").do(test_task)
+    # aioschedule.every(10).minutes.do(service_sends)
+
+    while True:
+        await aioschedule.run_pending()
+        # await aioschedule.run_pending()
+        await asyncio.sleep(1)
+
+
+async def on_startup(bot):
+    print("bot runs")
+    await reload_admins_list(bot)
+    await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
+    # await asyncio.create_task(scheduler())
+    await scheduler()
+
 
 async def main():
     dp.startup.register(on_startup)
