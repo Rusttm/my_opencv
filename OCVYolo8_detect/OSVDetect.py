@@ -1,6 +1,6 @@
 import time
 
-from OCVYolo8.OCVMainClass import OCVMainClass
+from OCVYolo8_detect.OCVMainClass import OCVMainClass
 import os
 from ultralytics import YOLO
 from DBModule.DBCont.DBContPut2DetectTableAsync import DBContPut2DetectTableAsync
@@ -97,15 +97,16 @@ class OSVDetect(OCVMainClass):
             if confidence < self._confidence:
                 continue
 
-            # put box in cam
-            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 1)
-            # object details
-            org = [x1, y1]
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.5
-            color = (255, 0, 0)
-            thickness = 2
-            cv2.putText(img, f"{cls_name} ({confidence}%)", org, font, font_scale, color, thickness)
+            # DRAW box on the frame
+            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
+            # SAVE object DETAILS on frame
+            # org = [x1, y1]
+            # font = cv2.FONT_HERSHEY_SIMPLEX
+            # font_scale = 0.1
+            # color = (0, 0, 0)
+            # thickness = 1
+            # cv2.putText(img, f"{cls_name} ({confidence}%)", org, font, font_scale, color, thickness)
+            # SEND DATA to DATABASE
             data_dict = dict({"created": datetime.datetime.now(),
                               "category_name": cls_name,
                               "confident": confidence,
@@ -140,6 +141,7 @@ class OSVDetect(OCVMainClass):
 
                 # run model recognition
                 results = self._model(img, imgsz=[w, h], rect=True, verbose=False)
+                cv2.putText(img, text=f"{datetime.datetime.now()}", org=(4, 16),  fontFace=cv2.FONT_ITALIC, fontScale=0.5, color=(0, 0, 0), thickness=2)
                 for result in results:
                     detected_names_dict, img = await self.img_boxes_handler(img, boxes=result.boxes)
                     detection_obj_num = detected_names_dict.get(self._capture_class, 0)

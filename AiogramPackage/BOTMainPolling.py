@@ -70,11 +70,24 @@ bot.filters_dict = dict()
 time_req_sec = 60  # seconds
 
 
-# seconds
+async def on_startup(bot):
+    print("bot runs")
+    await reload_admins_list(bot)
+    await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
+    asyncio.create_task(scheduler())
+    # await scheduler()
 
 
-async def on_shutdown():
-    print("Бот закрылся")
+async def scheduler():
+    aioschedule.every(time_req_sec).seconds.do(records_sent)
+    # aioschedule.every(time_req_sec).seconds.do(test_task)
+    # aioschedule.every().hour.at(":40").do(test_task)
+    # aioschedule.every(10).minutes.do(service_sends)
+
+    while True:
+        await aioschedule.run_pending()
+        # await aioschedule.run_pending()
+        await asyncio.sleep(1)
 
 
 async def records_sent():
@@ -103,6 +116,8 @@ async def records_sent():
                         img_obj_count = int(rec.get("count"))
                         img_path = os.path.join(img_dir, img_name)
                         # await message.answer(f"image file:{img_path=}")
+                        # msg_text = f"at {img_data} detected {img_obj_count} objects"
+                        # await bot.send_message(chat_id=recipient_id, text=msg_text)
                         async with aiofiles.open(img_path, mode="rb") as rec_img:
                             await bot.send_photo(chat_id=recipient_id,
                                                  photo=BufferedInputFile(file=await rec_img.read(),
@@ -113,6 +128,9 @@ async def records_sent():
                                                      "🎬Скачать видео": f"download_video_{recipient_id}_{video_name}",
                                                  }),
                                                  request_timeout=100)
+
+
+
                 except Exception as e:
                     err_msg = f"Не могу отправить данные о записях в чат {recipient_id}, ошибка:\n{e}"
                     err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
@@ -121,30 +139,19 @@ async def records_sent():
         await bot.send_message(chat_id=bot.admins_list[0], text=f"Не могу найти обновления, ошибка:\n{e}")
     print(datetime.datetime.now(), "\nChecked DataBase")
 
+async def on_shutdown():
+    print("Бот закрылся")
+
+
 async def test_task():
     print("new task run")
     return
 
 
 # from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
-async def scheduler():
-    aioschedule.every(time_req_sec).seconds.do(records_sent)
-    # aioschedule.every(time_req_sec).seconds.do(test_task)
-    # aioschedule.every().hour.at(":40").do(test_task)
-    # aioschedule.every(10).minutes.do(service_sends)
-
-    while True:
-        await aioschedule.run_pending()
-        # await aioschedule.run_pending()
-        await asyncio.sleep(1)
 
 
-async def on_startup(bot):
-    print("bot runs")
-    await reload_admins_list(bot)
-    await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
-    # await asyncio.create_task(scheduler())
-    await scheduler()
+
 
 
 async def main():

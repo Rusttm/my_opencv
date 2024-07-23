@@ -14,7 +14,6 @@ _static_dir = "data_static"
 _reports_img = "plot_img.jpg"
 # Bender sticker number
 _await_sticker = "CAACAgIAAxkBAAELd3Vl1n8pL3dHXcijRQ6OSUXB4Iu7EwACGwMAAs-71A7CHN2zMqnsdTQE"
-_detect_dir = "OCVYolo8"
 _detect_data_dir = "data"
 _detect_cap_dir = "capture"
 _detect_img_dir = "images"
@@ -40,8 +39,8 @@ async def download_video_file(callback: types.CallbackQuery, callback_answer: Ca
                                                 f"Не забывайте, что очень большие файлы (>30Mb) не загружаются")
     today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     try:
-        up_up_cur_file_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        video_dir = os.path.join(up_up_cur_file_path, _detect_dir, _detect_data_dir, _detect_cap_dir, _detect_video_dir)
+        project_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        video_dir = os.path.join(project_dir, _detect_data_dir, _detect_cap_dir, _detect_video_dir)
         video_path = os.path.join(video_dir, video_file_name)
         async with aiofiles.open(video_path, mode="rb") as rec_video:
             await bot.send_video(chat_id=chat_id, video=BufferedInputFile(file=await rec_video.read(),

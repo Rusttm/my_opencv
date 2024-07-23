@@ -36,7 +36,7 @@ _detect_img_dir = "images"
 _detect_video_dir = "video"
 _reports_img = "plot_img.jpg"
 _await_sticker = "CAACAgIAAxkBAAELd3Vl1n8pL3dHXcijRQ6OSUXB4Iu7EwACGwMAAs-71A7CHN2zMqnsdTQE"
-_delay_time = 6000   # sec
+_delay_time = 600   # sec
 
 
 admin_private_router = Router()
