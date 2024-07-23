@@ -119,9 +119,9 @@ if __name__ == '__main__':
     print("tables list:", asyncio.run(connector.get_all_tables_list_async()))
     print("'detect_model' in tables list:", asyncio.run(connector.check_table_exist_async("detect_model")))
     # print("all records:", asyncio.run(connector.get_all_data_from_table_async("detect_model")))
-    start_date = datetime.datetime(year=2024, month=7, day=18, hour=14, minute=27)
-    end_date = datetime.datetime(year=2024, month=7, day=19, hour=14, minute=27)
+    start_date = datetime.datetime(year=2024, month=7, day=23, hour=11, minute=17)
+    end_date = datetime.datetime(year=2024, month=7, day=23, hour=11, minute=30)
     # filtered_data = asyncio.run(connector.get_filtered_data_from_table_async("detect_model", col_name="confident", from_val=59.0, to_val=59.0))
-    filtered_data = asyncio.run(connector.get_filtered_data_from_table_async("detect_model", col_name="inserted_at", from_val=start_date))
+    filtered_data = asyncio.run(connector.get_filtered_data_from_table_async("video_capture_tg_model", col_name="inserted_at", from_val=start_date))
     for val in filtered_data:
         print(val)

@@ -1,7 +1,7 @@
 # from https://docs.aiogram.dev/en/latest/
 import asyncio
 import datetime
-
+import aiofiles
 import aioschedule
 import os
 from aiogram import Bot, Dispatcher, types
@@ -20,7 +20,8 @@ from AiogramPackage.TGHandlers.TGHandlerGroup import user_group_router
 from AiogramPackage.TGHandlers.TGHandlerAdmin import admin_private_router
 from AiogramPackage.TGCommon.TGBotCommandsList import private_commands
 from AiogramPackage.TGMiddleWares.TGMWDatabase import DBMiddleware
-
+from aiogram.types import BufferedInputFile
+from AiogramPackage.TGKeyboards.TGKeybInline import get_callback_btns
 # from AiogramPackage.TGAlchemy.TGModelService import download_service_events_row_async
 
 # from AiogramPackage.TGConnectors.TGMSConnector import TGMSConnector
@@ -32,6 +33,11 @@ _config = bot_class.get_main_config_json_data_sync()
 logger = bot_class.logger
 logger.brand = f"{os.path.basename(__file__)}"
 logger.info(f"logger {os.path.basename(__file__)} starts logging")
+_detect_dir = "OCVYolo8"
+_detect_data_dir = "data"
+_detect_cap_dir = "capture"
+_detect_img_dir = "images"
+_detect_video_dir = "video"
 
 # version1 set updates list
 # ALLOWED_UPDATES = ["message", "edited_message", "callback_query"]
@@ -82,12 +88,31 @@ async def records_sent():
         if not records_list:
             return False
         else:
+            up_cur_file_path = os.path.dirname(os.path.dirname(__file__))
+            img_dir = os.path.join(up_cur_file_path, _detect_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
             recipients_list = bot.admins_list
             # recipients_list = bot.fins_list
             for recipient_id in recipients_list:
                 try:
                     for rec in records_list:
-                        await bot.send_message(chat_id=recipient_id, text=f"{rec.get('position_id')}")
+                        img_name = rec.get("image_file")
+                        video_name = rec.get("video_file")
+                        img_data = rec.get("inserted_at").strftime("%H:%M")
+                        img_timelaps = int(rec.get("time"))
+                        img_obj = rec.get("category_name")
+                        img_obj_count = int(rec.get("count"))
+                        img_path = os.path.join(img_dir, img_name)
+                        # await message.answer(f"image file:{img_path=}")
+                        async with aiofiles.open(img_path, mode="rb") as rec_img:
+                            await bot.send_photo(chat_id=recipient_id,
+                                                 photo=BufferedInputFile(file=await rec_img.read(),
+                                                                         filename=f"{img_name}"),
+                                                 caption=f"🎬Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
+                                                         f"Обнаружено {img_obj_count} {img_obj} ",
+                                                 reply_markup=get_callback_btns(btns={
+                                                     "🎬Скачать видео": f"download_video_{recipient_id}_{video_name}",
+                                                 }),
+                                                 request_timeout=100)
                 except Exception as e:
                     err_msg = f"Не могу отправить данные о записях в чат {recipient_id}, ошибка:\n{e}"
                     err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"

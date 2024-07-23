@@ -12,3 +12,9 @@ yt_dlp==2024.7.9
  cap-from-youtube==0.0.10
  #pytube==15.0.0
  #pytube3==9.6.4
+ultralytics~=8.2.55
+opencv-python~=4.10.0.84
+pytube~=15.0.0
+requests~=2.32.3
+aiogram~=3.3.0
+aioschedule~=0.5.2

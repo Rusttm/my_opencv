@@ -29,7 +29,7 @@ class DBContGetDataCaptureTgTableAsync(DBContMainClass, DBConnGetFromTableAsync)
         last_delay = datetime.datetime.now() - datetime.timedelta(seconds=delay)
         request = await self.get_filtered_data_from_table_async(table_name=self._table_name, col_name=self._date_col_name, from_val=last_delay)
         res_list.extend(request)
-        print(f"have got {len(res_list)} records for last {self._delay}sec")
+        print(f"have got {len(res_list)} records for last {delay}sec")
         return res_list
     async def get_all_records_from_tg_db(self) -> list:
         # return await self.get_filtered_data_from_table_async(table_name=self._table_name, col_name=self._col_name,
@@ -42,7 +42,7 @@ class DBContGetDataCaptureTgTableAsync(DBContMainClass, DBConnGetFromTableAsync)
 
 def test_table_get():
     connector = DBContGetDataCaptureTgTableAsync()
-    captured_list = asyncio.run(connector.get_last_records_from_tg_db())
+    captured_list = asyncio.run(connector.get_last_records_from_tg_db(delay=60))
     for capt in captured_list:
         print(capt)
 

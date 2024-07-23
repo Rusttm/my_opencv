@@ -4,8 +4,10 @@ from OCVYolo8.OCVMainClass import OCVMainClass
 import os
 from ultralytics import YOLO
 from DBModule.DBCont.DBContPut2DetectTableAsync import DBContPut2DetectTableAsync
+
 db_writer = DBContPut2DetectTableAsync().put_data_dict_2_detect_table_async
 from DBModule.DBCont.DBContPut2CaptureTableAsync import DBContPut2CaptureTableAsync
+
 db_writer2 = DBContPut2CaptureTableAsync().put_data_dict_2_capture_table_async
 import cv2
 import math
@@ -13,6 +15,7 @@ import asyncio
 import datetime
 import secrets
 import time
+
 
 class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
@@ -142,7 +145,8 @@ class OSVDetect(OCVMainClass):
                     detection_obj_num = detected_names_dict.get(self._capture_class, 0)
 
                     # capture tail part
-                    time_limit = detected_obj_captured_last_time + datetime.timedelta(seconds=detection_obj_captured_time_delay)
+                    time_limit = detected_obj_captured_last_time + datetime.timedelta(
+                        seconds=detection_obj_captured_time_delay)
                     time_is_passed = datetime.datetime.now() > time_limit
 
                     # if detect person in frame
@@ -171,23 +175,26 @@ class OSVDetect(OCVMainClass):
                                 capture_time = time.time() - capture_detection_obj_start_time
                                 print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
-                                cv2.imwrite(self._img_file_full_path, last_detected_img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                cv2.imwrite(self._img_file_full_path, last_detected_img,
+                                            [int(cv2.IMWRITE_JPEG_QUALITY), 100])
                                 print(f"image '{self._img_file_name}' saved")
                                 # put data to database
-                                data_dict = dict({"created": capture_start_datetime,
-                                                  "closed": detected_obj_captured_last_time,
-                                                  "category_name": self._capture_class,
-                                                  "confident": 0,
-                                                  "time": round(capture_time, 1),
-                                                  "frame_width": self._cap_config.get("width"),
-                                                  "frame_height": self._cap_config.get("height"),
-                                                  "count": maximal_detected_obj_count,
-                                                  "video_file": self._video_file_name,
-                                                  "image_file": self._img_file_name,
-                                                  "description": f"test {self._capture_class} detection",
-                                                  "react": "tg",
-                                                  "react_time": datetime.datetime.now()
-                                                  })
+                                data_dict = dict({
+                                    "inserted_at": datetime.datetime.now(),
+                                    "created": capture_start_datetime,
+                                    "closed": detected_obj_captured_last_time,
+                                    "category_name": self._capture_class,
+                                    "confident": 0,
+                                    "time": round(capture_time, 1),
+                                    "frame_width": self._cap_config.get("width"),
+                                    "frame_height": self._cap_config.get("height"),
+                                    "count": maximal_detected_obj_count,
+                                    "video_file": self._video_file_name,
+                                    "image_file": self._img_file_name,
+                                    "description": f"test {self._capture_class} detection",
+                                    "react": "tg",
+                                    "react_time": datetime.datetime.now()
+                                })
                                 await db_writer2(data_dict)
                                 maximal_detected_obj_count = 0
 
