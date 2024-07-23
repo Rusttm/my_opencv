@@ -21,7 +21,7 @@ class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
     _weights_dir = "yolo-Weights"
     _weights_file = "yolov8x.pt"
-    _data_dir = "data"   # directory in main project
+    _data_dir = "data"  # directory in main project
     _capture_dir = "capture"
     _capture_video_dir = "video"
     _capture_img_dir = "images"
@@ -35,8 +35,9 @@ class OSVDetect(OCVMainClass):
     _cap_config: dict = None
     _out = None
     _capture_delay: int = 3
-    _confidence = 50
+    _confidence = 60
     _capture_class = "person"
+    last_detected_obj_img = None
 
     def __init__(self):
         super().__init__()
@@ -99,6 +100,8 @@ class OSVDetect(OCVMainClass):
 
             # DRAW box on the frame
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
+            if (cls_name == self._capture_class) and (confidence > 70):
+                self.last_detected_obj_img = img
             # SAVE object DETAILS on frame
             # org = [x1, y1]
             # font = cv2.FONT_HERSHEY_SIMPLEX
@@ -141,7 +144,8 @@ class OSVDetect(OCVMainClass):
 
                 # run model recognition
                 results = self._model(img, imgsz=[w, h], rect=True, verbose=False)
-                cv2.putText(img, text=f"{datetime.datetime.now()}", org=(4, 16),  fontFace=cv2.FONT_ITALIC, fontScale=0.5, color=(0, 0, 0), thickness=2)
+                cv2.putText(img, text=f"{datetime.datetime.now()}", org=(4, 16), fontFace=cv2.FONT_ITALIC,
+                            fontScale=0.5, color=(0, 0, 0), thickness=2)
                 for result in results:
                     detected_names_dict, img = await self.img_boxes_handler(img, boxes=result.boxes)
                     detection_obj_num = detected_names_dict.get(self._capture_class, 0)
@@ -159,10 +163,11 @@ class OSVDetect(OCVMainClass):
                         if detection_obj_captured is False:
                             print(f"Object '{self._capture_class}' just captured at {datetime.datetime.now()}")
                             self.change_video_out_file()
+                            self.last_detected_obj_img = img
                             print(f"video writed in file {self._video_file_name}")
                             capture_detection_obj_start_time = time.time()
                             capture_start_datetime = datetime.datetime.now()
-                        last_detected_img = img
+
                         detection_obj_captured = True
                         detected_obj_captured_last_time = datetime.datetime.now()
                         self._out.write(img)
@@ -177,9 +182,11 @@ class OSVDetect(OCVMainClass):
                                 capture_time = time.time() - capture_detection_obj_start_time
                                 print(f"capture time {int(capture_time)}sec")
                                 print("capture closed")
-                                cv2.imwrite(self._img_file_full_path, last_detected_img,
+                                # save frame with detected object to jpeg
+                                cv2.imwrite(self._img_file_full_path, self.last_detected_obj_img,
                                             [int(cv2.IMWRITE_JPEG_QUALITY), 100])
                                 print(f"image '{self._img_file_name}' saved")
+                                self.last_detected_obj_img = None
                                 # put data to database
                                 data_dict = dict({
                                     "inserted_at": datetime.datetime.now(),

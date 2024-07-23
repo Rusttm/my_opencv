@@ -1,4 +1,5 @@
-this package is aiogramm telegram chat bot
-bot tracks changes in database and sends info to admin
+main package is aiogramm telegram chat bot
+this bot sends captured video files to "stokers" group
+bot scheduled (every minute) to track changes in database and send info to stockers_list
 
 

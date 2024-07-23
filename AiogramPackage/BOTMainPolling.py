@@ -107,7 +107,7 @@ async def records_sent():
         else:
             prj_dir = os.path.dirname(os.path.dirname(__file__))
             img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
-            recipients_list = bot.admins_list
+            recipients_list = bot.stokers_list
             # recipients_list = bot.fins_list
             for recipient_id in recipients_list:
                 try:

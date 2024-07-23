@@ -120,7 +120,8 @@ async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
                         await bot.send_photo(chat_id=message.chat.id,
                                              photo=BufferedInputFile(file=await rec_img.read(),
                                                                      filename=f"{img_name}"),
-                                             caption=f"🎬Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
+                                             caption=f"🎬Запись {video_name} от {img_data}, "
+                                                     f"длительностью {img_timelaps} секунд.\n"
                                                      f"Обнаружено {img_obj_count} {img_obj} ",
                                              reply_markup=get_callback_btns(btns={
                                                  "🎬Скачать видео": f"download_video_{message.chat.id}_{video_name}",
