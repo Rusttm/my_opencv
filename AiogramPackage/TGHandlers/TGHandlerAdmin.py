@@ -56,13 +56,14 @@ def clean_text(text: str):
     return text.translate(str.maketrans("", "", punctuation))
 
 
-async def reload_admins_list(bot: Bot):
+async def reload_users_groups_list(bot: Bot):
     """ this module loads lists of groups members and restricted words
     some lists should be reloaded by /admin command"""
     _main_key = "bot_config"
     _admin_key = "admin_members"
     _filters_key = "filters_config"
     _fin_key = "fin_members"
+    _stock_key = "stock_members"
     _restricted_key = "restricted_words"
     _config_dir_name = "config"
     _config_file_name = "bot_main_config.json"
@@ -73,10 +74,13 @@ async def reload_admins_list(bot: Bot):
     _module_config = await connector.get_main_config_json_data_async(_config_dir_name, _config_file_name)
     admin_members_dict = _module_config.get(_main_key).get(_admin_key)
     fin_members_dict = _module_config.get(_main_key).get(_fin_key)
+    stock_members_dict = _module_config.get(_main_key).get(_stock_key)
     bot.admins_list = list(admin_members_dict.values())
     logging.info(f"reloaded {bot.admins_list=}")
     bot.fins_list = list(fin_members_dict.values())
     logging.info(f"reloaded {bot.fins_list=}")
+    bot.stokers_list = list(stock_members_dict.values())
+    logging.info(f"reloaded {bot.stokers_list=}")
     restricted_words_list = _module_config.get(_main_key).get(_restricted_key)
     bot.restricted_words = list(restricted_words_list)
     logging.info(f"reloaded {bot.restricted_words=}")
@@ -93,7 +97,7 @@ async def reload_admins_list(bot: Bot):
 @admin_private_router.message(Command("admin", ignore_case=True))
 async def admin_cmd(message: types.Message, bot: Bot):
     """ this handler reloads group admins list"""
-    await reload_admins_list(bot=bot)
+    await reload_users_groups_list(bot=bot)
     await message.delete()
 
 
@@ -267,45 +271,45 @@ async def admin_menu_cmd(message: types.Message, state: FSMContext):
     finally:
         await state.clear()
 
-@admin_private_router.message(Command("records"))
-@admin_private_router.message(F.text.lower().contains("записи"))
-async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
-    """ main handler for records requests """
-    try:
-        from AiogramPackage.TGConnectors.TGDBConnector import TGDBConnector
-        conn = TGDBConnector()
-        records_list = await conn.get_detected_obj_last_delay_async(delay=_delay_time)
-
-        if not records_list:
-            await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")
-        else:
-            prj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
-            try:
-                for rec in records_list:
-                    img_name = rec.get("image_file")
-                    video_name = rec.get("video_file")
-                    img_data = rec.get("inserted_at").strftime("%H:%M")
-                    img_timelaps = int(rec.get("time"))
-                    img_obj = rec.get("category_name")
-                    img_obj_count = int(rec.get("count"))
-                    img_path = os.path.join(img_dir, img_name)
-                    # await message.answer(f"image file:{img_path=}")
-                    async with aiofiles.open(img_path, mode="rb") as rec_img:
-                        await bot.send_photo(chat_id=message.chat.id,
-                                             photo=BufferedInputFile(file=await rec_img.read(),
-                                                                     filename=f"{img_name}"),
-                                             caption=f"🎬Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
-                                                     f"Обнаружено {img_obj_count} {img_obj} ",
-                                             reply_markup=get_callback_btns(btns={
-                                                 "🎬Скачать видео": f"download_video_{message.chat.id}_{video_name}",
-                                             }),
-                                             request_timeout=100)
-
-            except Exception as e:
-                err_msg = f"Не могу отправить данные об обновлениях в чат {message.chat.id}, ошибка:\n{e}"
-                err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
-                await message.answer(err_msg)
-    except Exception as e:
-        await message.answer(f"Не могу найти записи камер, ошибка:\n{e}")
-    print(datetime.datetime.now(), "\nCheck the DataBase")
+# @admin_private_router.message(Command("records"))
+# @admin_private_router.message(F.text.lower().contains("записи"))
+# async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
+#     """ main handler for records requests """
+#     try:
+#         from AiogramPackage.TGConnectors.TGDBConnector import TGDBConnector
+#         conn = TGDBConnector()
+#         records_list = await conn.get_detected_obj_last_delay_async(delay=_delay_time)
+#
+#         if not records_list:
+#             await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")
+#         else:
+#             prj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+#             img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
+#             try:
+#                 for rec in records_list:
+#                     img_name = rec.get("image_file")
+#                     video_name = rec.get("video_file")
+#                     img_data = rec.get("inserted_at").strftime("%H:%M")
+#                     img_timelaps = int(rec.get("time"))
+#                     img_obj = rec.get("category_name")
+#                     img_obj_count = int(rec.get("count"))
+#                     img_path = os.path.join(img_dir, img_name)
+#                     # await message.answer(f"image file:{img_path=}")
+#                     async with aiofiles.open(img_path, mode="rb") as rec_img:
+#                         await bot.send_photo(chat_id=message.chat.id,
+#                                              photo=BufferedInputFile(file=await rec_img.read(),
+#                                                                      filename=f"{img_name}"),
+#                                              caption=f"🎬Запись от {img_data}, длительностью {img_timelaps} секунд.\n"
+#                                                      f"Обнаружено {img_obj_count} {img_obj} ",
+#                                              reply_markup=get_callback_btns(btns={
+#                                                  "🎬Скачать видео": f"download_video_{message.chat.id}_{video_name}",
+#                                              }),
+#                                              request_timeout=100)
+#
+#             except Exception as e:
+#                 err_msg = f"Не могу отправить данные об обновлениях в чат {message.chat.id}, ошибка:\n{e}"
+#                 err_msg += f"Найдено {len(records_list)} записей, ошибка:\n{e}"
+#                 await message.answer(err_msg)
+#     except Exception as e:
+#         await message.answer(f"Не могу найти записи камер, ошибка:\n{e}")
+#     print(datetime.datetime.now(), "\nCheck the DataBase")

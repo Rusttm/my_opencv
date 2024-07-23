@@ -60,6 +60,19 @@ class BOTFilterIsGroupAdmin(Filter):
         """ filter doesn't work with private chats, only group chats"""
         return message.from_user.id in bot.chat_group_admins_list
 
+class BOTFilterStokersList(Filter):
+    logger_name = f"{os.path.basename(__file__)}"
+    _main_key = "bot_config"
+    _fin_key = "stock_members"
+    _config_dir_name = "config"
+    _config_file_name = "bot_main_config.json"
+    _module_config: dict = None
+
+    def __init__(self):
+        pass
+
+    async def __call__(self, message: types.Message, bot: Bot) -> bool:
+        return message.from_user.id in bot.stokers_list
 
 if __name__ == "__main__":
     filter = BOTFilterFinList()

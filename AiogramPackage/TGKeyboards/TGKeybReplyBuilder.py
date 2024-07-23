@@ -12,6 +12,7 @@ reply_kb_lvl1.adjust(1, 1)
 # second keyboard for everyone
 reply_kb_lvl2 = ReplyKeyboardBuilder()
 reply_kb_lvl2.add(
+    KeyboardButton(text="🫴Запросить доступ"),
     KeyboardButton(text="🚧Under construction"))
 reply_kb_lvl2.adjust(2, 1)
 
@@ -30,6 +31,12 @@ reply_kb_lvl2_admin.row(
     KeyboardButton(text="💾Получить файл"),
     KeyboardButton(text="📃Меню"))
 reply_kb_lvl2_admin.adjust(2, 1)
+
+# start keyboard for stockers
+reply_kb_lvl1_stock = ReplyKeyboardBuilder()
+# adds reports to common keyboard
+reply_kb_lvl1_stock.attach(reply_kb_lvl1)
+reply_kb_lvl1_stock.row(KeyboardButton(text="📹Запросить записи камер"))
 
 
 # inline kbd constructor

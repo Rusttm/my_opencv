@@ -11,13 +11,14 @@ from aiogram.enums import ParseMode
 
 from AiogramPackage.TGAlchemy.TGModelProdSQLite import create_table_async, drop_table_async, async_session
 from AiogramPackage.TGConnectors.BOTMainClass import BOTMainClass
-from AiogramPackage.TGHandlers.TGHandlerAdmin import reload_admins_list
+from AiogramPackage.TGHandlers.TGHandlerAdmin import reload_users_groups_list
 import logging
 
 from AiogramPackage.TGHandlers.TGHandlerCallback import callback_router
 from AiogramPackage.TGHandlers.TGHandlerUser import user_router
 from AiogramPackage.TGHandlers.TGHandlerGroup import user_group_router
 from AiogramPackage.TGHandlers.TGHandlerAdmin import admin_private_router
+from AiogramPackage.TGHandlers.TGHandlerStockers import stokers_private_router
 from AiogramPackage.TGCommon.TGBotCommandsList import private_commands
 from AiogramPackage.TGMiddleWares.TGMWDatabase import DBMiddleware
 from aiogram.types import BufferedInputFile
@@ -57,14 +58,17 @@ dp = Dispatcher()
 dp.include_router(callback_router)
 # 1 router (handler)
 dp.include_router(admin_private_router)
+dp.include_router(stokers_private_router)
 # 2 router (handler)
 dp.include_router(user_router)
 # 3 router (handler)
 dp.include_router(user_group_router)
 
+
 bot.admins_list = [731370983]
 bot.chat_group_admins_list = [731370983]
 bot.fins_list = [731370983]
+bot.stokers_list = [731370983]
 bot.restricted_words = ['idiot']
 bot.filters_dict = dict()
 time_req_sec = 60  # seconds
@@ -72,7 +76,7 @@ time_req_sec = 60  # seconds
 
 async def on_startup(bot):
     print("bot runs")
-    await reload_admins_list(bot)
+    await reload_users_groups_list(bot)
     await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
     asyncio.create_task(scheduler())
     # await scheduler()

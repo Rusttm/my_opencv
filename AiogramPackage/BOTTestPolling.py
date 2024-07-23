@@ -24,7 +24,7 @@ from aiogram.enums import ParseMode
 
 from AiogramPackage.TGAlchemy.TGModelProdSQLite import create_table_async, drop_table_async, async_session
 from AiogramPackage.TGConnectors.BOTMainClass import BOTMainClass
-from AiogramPackage.TGHandlers.TGHandlerAdmin import reload_admins_list
+from AiogramPackage.TGHandlers.TGHandlerAdmin import reload_users_groups_list
 import logging
 
 from AiogramPackage.TGHandlers.TGHandlerCallback import callback_router
@@ -69,7 +69,7 @@ bot.filters_dict = dict()
 
 async def on_startup(bot):
     print("bot runs")
-    await reload_admins_list(bot)
+    await reload_users_groups_list(bot)
     # await bot.send_message(chat_id=bot.admins_list[0], text="Бот был перегружен, конфигурационные данные обновлены")
     asyncio.create_task(scheduler())
 

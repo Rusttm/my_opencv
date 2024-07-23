@@ -7,7 +7,7 @@ import aiofiles
 from aiogram import types, Router, F, Bot, flags
 from aiogram.types import BufferedInputFile
 from aiogram.utils.callback_answer import CallbackAnswer, CallbackAnswerMiddleware
-from AiogramPackage.TGFilters.BOTFilter import BOTFilterChatType, BOTFilterFinList, BOTFilterAdminList
+from AiogramPackage.TGFilters.BOTFilter import BOTFilterChatType, BOTFilterFinList, BOTFilterAdminList, BOTFilterStokersList
 
 
 _static_dir = "data_static"
@@ -25,7 +25,7 @@ callback_router.callback_query.middleware(
     CallbackAnswerMiddleware(pre=True, text="🤔 Подождите еще несколько секунд", cache_time=10))
 
 
-@callback_router.callback_query(F.data.startswith("download_video_"), BOTFilterAdminList())
+@callback_router.callback_query(F.data.startswith("download_video_"), BOTFilterStokersList())
 @flags.callback_answer(pre=False, cache_time=10)
 async def download_video_file(callback: types.CallbackQuery, callback_answer: CallbackAnswer, bot: Bot):
     extra_data = callback.data[15:]
