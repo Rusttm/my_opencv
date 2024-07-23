@@ -30,7 +30,6 @@ import datetime
 
 _static_dir = "data_static"
 _pkg_dir = "AiogramPackage"
-_detect_dir = "OCVYolo8"
 _detect_data_dir = "data"
 _detect_cap_dir = "capture"
 _detect_img_dir = "images"
@@ -280,8 +279,8 @@ async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
         if not records_list:
             await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")
         else:
-            up_up_cur_file_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            img_dir = os.path.join(up_up_cur_file_path, _detect_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
+            prj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
             try:
                 for rec in records_list:
                     img_name = rec.get("image_file")

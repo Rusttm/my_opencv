@@ -21,7 +21,7 @@ class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
     _weights_dir = "yolo-Weights"
     _weights_file = "yolov8x.pt"
-    _data_dir = "data"
+    _data_dir = "data"   # directory in main project
     _capture_dir = "capture"
     _capture_video_dir = "video"
     _capture_img_dir = "images"
@@ -70,9 +70,9 @@ class OSVDetect(OCVMainClass):
         add_token = secrets.token_hex(nbytes=2)
         self._video_file_name = f"capture_{today_date}_{add_token}.avi"
         self._img_file_name = f"capture_{today_date}_{add_token}.jpg"
-        cur_dir = os.path.dirname(__file__)
-        video_dir_path = os.path.join(cur_dir, self._data_dir, self._capture_dir, self._capture_video_dir)
-        img_dir_path = os.path.join(cur_dir, self._data_dir, self._capture_dir, self._capture_img_dir)
+        project_dir = os.path.dirname(os.path.dirname(__file__))
+        video_dir_path = os.path.join(project_dir, self._data_dir, self._capture_dir, self._capture_video_dir)
+        img_dir_path = os.path.join(project_dir, self._data_dir, self._capture_dir, self._capture_img_dir)
         self._img_file_full_path = os.path.join(img_dir_path, self._img_file_name)
         record_video_file_name = os.path.join(video_dir_path, self._video_file_name)
         fps = self._cap_config.get("fps")

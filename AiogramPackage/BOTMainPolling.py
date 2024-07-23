@@ -33,7 +33,7 @@ _config = bot_class.get_main_config_json_data_sync()
 logger = bot_class.logger
 logger.brand = f"{os.path.basename(__file__)}"
 logger.info(f"logger {os.path.basename(__file__)} starts logging")
-_detect_dir = "OCVYolo8"
+
 _detect_data_dir = "data"
 _detect_cap_dir = "capture"
 _detect_img_dir = "images"
@@ -88,8 +88,8 @@ async def records_sent():
         if not records_list:
             return False
         else:
-            up_cur_file_path = os.path.dirname(os.path.dirname(__file__))
-            img_dir = os.path.join(up_cur_file_path, _detect_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
+            prj_dir = os.path.dirname(os.path.dirname(__file__))
+            img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
             recipients_list = bot.admins_list
             # recipients_list = bot.fins_list
             for recipient_id in recipients_list:
