@@ -119,7 +119,7 @@ async def records_sent():
                     await bot.send_message(chat_id=bot.admins_list[0], text=err_msg)
     except Exception as e:
         await bot.send_message(chat_id=bot.admins_list[0], text=f"Не могу найти обновления, ошибка:\n{e}")
-    print(datetime.datetime.now(), "\nCheck the DataBase")
+    print(datetime.datetime.now(), "\nChecked DataBase")
 
 async def test_task():
     print("new task run")
@@ -129,7 +129,7 @@ async def test_task():
 # from https://ru.stackoverflow.com/questions/1144849/%D0%9A%D0%B0%D0%BA-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%83-aiogram-%D0%B8-schedule-%D0%BD%D0%B0-%D0%A2elegram-bot
 async def scheduler():
     aioschedule.every(time_req_sec).seconds.do(records_sent)
-    aioschedule.every(time_req_sec).seconds.do(test_task)
+    # aioschedule.every(time_req_sec).seconds.do(test_task)
     # aioschedule.every().hour.at(":40").do(test_task)
     # aioschedule.every(10).minutes.do(service_sends)
 
