@@ -36,7 +36,7 @@ class OSVDetect(OCVMainClass):
     _out = None
     _capture_delay: int = 3
     _confidence = 60
-    _capture_class = "person"
+    _capture_class = "dog"
     last_detected_obj_img = None
 
     def __init__(self):
@@ -69,8 +69,8 @@ class OSVDetect(OCVMainClass):
         today_date = datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S")
         self._file_number += 1
         add_token = secrets.token_hex(nbytes=2)
-        self._video_file_name = f"capture_{today_date}_{add_token}.avi"
-        self._img_file_name = f"capture_{today_date}_{add_token}.jpg"
+        self._video_file_name = f"capture_{self._capture_class}_{today_date}_{add_token}.avi"
+        self._img_file_name = f"capture_{self._capture_class}_{today_date}_{add_token}.jpg"
         project_dir = os.path.dirname(os.path.dirname(__file__))
         video_dir_path = os.path.join(project_dir, self._data_dir, self._capture_dir, self._capture_video_dir)
         img_dir_path = os.path.join(project_dir, self._data_dir, self._capture_dir, self._capture_img_dir)
