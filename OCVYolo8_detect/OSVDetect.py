@@ -20,7 +20,7 @@ import time
 class OSVDetect(OCVMainClass):
     logger_name = f"{os.path.basename(__file__)}"
     _weights_dir = "yolo-Weights"
-    _weights_file = "yolov8x.pt"
+    _weights_file = "yolov8n.pt"
     _data_dir = "data"  # directory in main project
     _capture_dir = "capture"
     _capture_video_dir = "video"
@@ -46,7 +46,9 @@ class OSVDetect(OCVMainClass):
 
     def init_cap_res(self):
         try:
-            cap = cv2.VideoCapture(0)
+            # cap = cv2.VideoCapture(0)
+            os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
+            cap = cv2.VideoCapture("rtsp://192.168.1.80:8554/unicast", cv2.CAP_FFMPEG)
             w, h, fps = (int(cap.get(x)) for x in
                          (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
         except Exception as e:
