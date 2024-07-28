@@ -102,7 +102,7 @@ async def send_msgs_with_cam_photos(message: types.Message, bot: Bot):
         records_list = await conn.get_detected_obj_last_delay_async(delay=_delay_time)
 
         if not records_list:
-            await message.answer(f"on this time ({datetime.datetime.now().strftime("%H:%M")}) there are no new records")
+            await message.answer(f"on this time ({datetime.datetime.now().strftime('%H:%M')}) there are no new records")
         else:
             prj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
             img_dir = os.path.join(prj_dir, _detect_data_dir, _detect_cap_dir, _detect_img_dir)
