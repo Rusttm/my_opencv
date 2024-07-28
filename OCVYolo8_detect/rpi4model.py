@@ -1,3 +1,5 @@
+# ultralitics on rpi4
+# pip install ultralytics[export]
 from ultralytics import YOLO
 
 # Load a YOLOv8n PyTorch model
