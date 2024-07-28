@@ -1,4 +1,6 @@
-aiofiles==24.1.0
+#Python3.11
+#aiofiles==24.1.0
+aiofiles==23.2.1
 sqlalchemy==2.0.31
 aiosqlite==0.20.0
 # libraries for stream capture
